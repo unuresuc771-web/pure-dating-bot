@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  pure-bot:
+    build: .
+    container_name: pure_match_bot
+    restart: always
+    volumes:
+      - ./bot_dating.db:/app/bot_dating.db
+      - ./bot.log:/app/bot.log
+      - ./assets:/app/assets
+    env_file:
+      - .env

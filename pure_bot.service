@@ -1,0 +1,16 @@
+[Unit]
+Description=Pure Match Telegram Dating Bot Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/pure_match_bot
+ExecStart=/opt/pure_match_bot/.venv/bin/python run.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/opt/pure_match_bot/bot.log
+StandardError=append:/opt/pure_match_bot/bot_err.log
+
+[Install]
+WantedBy=multi-user.target

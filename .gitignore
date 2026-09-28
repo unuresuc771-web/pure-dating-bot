@@ -1,0 +1,34 @@
+# Environment & secrets
+.env
+*.env.local
+
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+bot.log
+bot_err.log
+
+# Temporary & system files
+desktop.ini
+scratch/
+pure_match_bot_deploy.zip
+Sep 27*/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

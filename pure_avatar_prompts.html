@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pure Match — Промпты с тайными именами (Nano Banana Pro / Flow)</title>
+  <style>
+    :root {
+      --bg: #09090d;
+      --card-bg: #12131a;
+      --card-border: #232533;
+      --text: #f0f0f5;
+      --text-muted: #8e90a6;
+      --pure-pink: #ff007f;
+      --pure-orange: #ff5500;
+      --pure-cyan: #00f0ff;
+      --pure-lime: #39ff14;
+      --pure-purple: #9d4edd;
+      --accent-glow: rgba(255, 0, 127, 0.35);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+      padding-bottom: 90px;
+    }
+
+    header {
+      background: linear-gradient(180deg, rgba(255, 0, 127, 0.16) 0%, rgba(9, 9, 13, 0.98) 100%);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      padding: 18px 30px;
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--pure-pink), var(--pure-orange));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .logo-icon svg {
+      width: 26px;
+      height: 26px;
+      fill: #000;
+    }
+
+    .logo-title h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #fff, #ff80bf);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-title p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .nav-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      background: #181924;
+      border-radius: 10px;
+      padding: 4px;
+      border: 1px solid var(--card-border);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--pure-pink);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(255, 0, 127, 0.4);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-input {
+      background: #181924;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 9px 14px 9px 36px;
+      color: #fff;
+      font-size: 0.88rem;
+      outline: none;
+      width: 220px;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--pure-pink);
+      width: 260px;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      fill: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .btn-secondary {
+      background: #1e202d;
+      border: 1px solid var(--card-border);
+      color: #e0e2ed;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #2a2c3d;
+      border-color: #3e4157;
+      color: #fff;
+    }
+
+    .main-container {
+      max-width: 1440px;
+      margin: 24px auto 0;
+      padding: 0 30px;
+    }
+
+    /* Guide Banner */
+    .guide-banner {
+      background: linear-gradient(135deg, #151624 0%, #1c1426 100%);
+      border: 1px solid #3d2d59;
+      border-radius: 16px;
+      padding: 22px 26px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .guide-banner::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(255, 0, 127, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .guide-info h2 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .guide-info p {
+      font-size: 0.88rem;
+      color: #cfd2e6;
+      margin-bottom: 12px;
+      max-width: 820px;
+    }
+
+    .guide-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .guide-tag {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: #e4e6f2;
+    }
+
+    .guide-tag strong {
+      color: #ff80bf;
+    }
+
+    .guide-quick-copy {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .guide-quick-copy label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #a0a4bd;
+    }
+
+    .quick-neg-btn {
+      background: #252033;
+      border: 1px solid #4a3865;
+      color: #ff99cc;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+
+    .quick-neg-btn:hover {
+      background: #36294d;
+      color: #fff;
+    }
+
+    /* Global Text Mode Switcher */
+    .text-mode-bar {
+      background: #151722;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .text-mode-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .text-mode-toggle {
+      display: flex;
+      gap: 8px;
+      background: #0b0c12;
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid #232533;
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn.active {
+      background: #2a2c3d;
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(430px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #3b3d52;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    .card.male {
+      border-left: 4px solid var(--pure-cyan);
+    }
+
+    .card.female {
+      border-left: 4px solid var(--pure-pink);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar-preview-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .avatar-preview-badge::after {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: #000;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+    }
+
+    .card-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .card-subname {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .gender-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .gender-pill.male {
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--pure-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+
+    .gender-pill.female {
+      background: rgba(255, 0, 127, 0.12);
+      color: var(--pure-pink);
+      border: 1px solid rgba(255, 0, 127, 0.3);
+    }
+
+    .top-text-tag {
+      background: rgba(255, 0, 127, 0.15);
+      border: 1px dashed var(--pure-pink);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .top-text-tag strong {
+      color: #ff99cc;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-box {
+      background: #171824;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meta-item {
+      display: flex;
+      gap: 8px;
+      line-height: 1.35;
+    }
+
+    .meta-item strong {
+      color: #9da1b8;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+
+    .palette-swatches {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      margin-right: 6px;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .prompt-box {
+      background: #0b0c12;
+      border: 1px solid #1e202b;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #d1d5db;
+      line-height: 1.45;
+      max-height: 125px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      user-select: all;
+    }
+
+    .prompt-box::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .prompt-box::-webkit-scrollbar-thumb {
+      background: #2a2c3a;
+      border-radius: 4px;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-copy-main {
+      background: linear-gradient(135deg, var(--pure-pink) 0%, #d6006b 100%);
+      border: none;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(255, 0, 127, 0.35);
+      transition: all 0.2s;
+    }
+
+    .btn-copy-main:hover {
+      background: linear-gradient(135deg, #ff1a8c 0%, #e60073 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(255, 0, 127, 0.5);
+    }
+
+    .btn-copy-main:active {
+      transform: translateY(1px);
+    }
+
+    .btn-icon {
+      background: #1a1c26;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: #252838;
+      color: #fff;
+      border-color: #3e4157;
+    }
+
+    .btn-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #171822;
+      border: 1px solid var(--pure-pink);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px var(--accent-glow);
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(100px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-icon {
+      width: 20px;
+      height: 20px;
+      background: var(--pure-pink);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toast-icon svg {
+      width: 12px;
+      height: 12px;
+      fill: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .guide-banner {
+        grid-template-columns: 1fr;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">
+    <div class="toast-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    </div>
+    <span id="toastText">Промпт скопирован!</span>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo-badge">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+          </svg>
+        </div>
+        <div class="logo-title">
+          <h1>Pure Match — Flow / Nano Banana Pro</h1>
+          <p>40 аватарок с тайными именами пользователей • Фирменный шрифт логотипа</p>
+        </div>
+      </div>
+
+      <div class="nav-controls">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="filterGender('all')">Все (40)</button>
+          <button class="tab-btn" onclick="filterGender('male')">Мужские (20)</button>
+          <button class="tab-btn" onclick="filterGender('female')">Женские (20)</button>
+        </div>
+
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Поиск по имени, узору или стилю..." oninput="handleSearch()">
+        </div>
+
+        <button class="btn-secondary" onclick="copyBatch('male')">📋 Все Мужские</button>
+        <button class="btn-secondary" onclick="copyBatch('female')">📋 Все Женские</button>
+        <button class="btn-secondary" onclick="exportPromptsTxt()">💾 Экспорт TXT</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- Guidelines Banner -->
+    <div class="guide-banner">
+      <div class="guide-info">
+        <h2>✨ Промпты с тайными анонимными именами вместо «PURE»</h2>
+        <p>
+          Вместо стандартного слова <em>"PURE"</em> в верхней части каждой аватарки полукругом генерируется <strong>тайный анонимный никнейм</strong> пользователя (напр. <code>"НОЧНОЙ ДЕМОН"</code>, <code>"МАЛЕНЬКАЯ ЧЕРТОВКА"</code>). Шрифт точно такой же, как в логотипе Pure — жирные, округлые, комиксно-маркерные буквы.
+        </p>
+        <div class="guide-tags">
+          <span class="guide-tag"><strong>Формат:</strong> 1:1 Square (1024×1024)</span>
+          <span class="guide-tag"><strong>Текст вверху:</strong> Тайные имена (Кириллица / Латиница)</span>
+          <span class="guide-tag"><strong>Узоры:</strong> 40 абсолютно разных паттернов</span>
+          <span class="guide-tag"><strong>CFG / Guidance:</strong> 7.5 — 8.0</span>
+        </div>
+      </div>
+      <div class="guide-quick-copy">
+        <label>Быстрое копирование во Flow</label>
+        <button class="quick-neg-btn" onclick="copyNegativePrompt()">
+          <span>🚫 Копировать Negative Prompt</span>
+          <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        </button>
+        <button class="quick-neg-btn" onclick="copyFontGuideline()">
+          <span>🔤 Описание шрифта тайных имен</span>
+          <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mode Switcher Bar -->
+    <div class="text-mode-bar">
+      <div class="text-mode-title">
+        <span>🔤 Формат тайного имени в промпте:</span>
+        <span style="font-size:0.8rem;color:var(--text-muted);">(кликните для смены языка надписи)</span>
+      </div>
+      <div class="text-mode-toggle">
+        <button class="mode-btn active" id="btnModeRu" onclick="setTextMode('ru')">🇷🇺 Русские ники (НОЧНОЙ ДЕМОН)</button>
+        <button class="mode-btn" id="btnModeEn" onclick="setTextMode('en')">🇬🇧 English ники (NIGHT DEMON)</button>
+        <button class="mode-btn" id="btnModePure" onclick="setTextMode('pure')">💖 Слово "PURE"</button>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid" id="promptsGrid">
+      <!-- Injected via JavaScript -->
+    </div>
+  </main>
+
+  <script>
+    const NEGATIVE_PROMPT = "photorealistic, 3d render, shadows, photorealism, gradients inside silhouette, messy lines, watermark, low quality, noisy, realistic skin, photographic lighting, human realistic face, 3d CGI, volumetric shading";
+    const FONT_GUIDELINE = 'Prominently at the top center, the bold black hand-drawn typography text of the secret nickname is arched across the top in chunky, rounded, playful comic marker letters, exactly matching the Pure logo lettering style.';
+
+    const AVATARS_DATA = [
+  {
+    "id": "male_01",
+    "num": 1,
+    "gender": "male",
+    "name": "Ночной Демон",
+    "enName": "Night Demon",
+    "nickRu": "НОЧНОЙ ДЕМОН",
+    "nickEn": "NIGHT DEMON",
+    "pattern": "Оптический вортекс и спиральные лучи (Optical Spiral Vortex)",
+    "colors": [
+      "#FF007F",
+      "#FF5500"
+    ],
+    "paletteName": "Классический Pure (Маджента & Неоновый Оранж)",
+    "heroDetail": "Рогатый демон в темных ретро-очках вайфарерах с тлеющей сигаретой в зубах, дым от которой изящно поднимается вверх; массивные серповидные рога и широкие плечи.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"НОЧНОЙ ДЕМОН\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cool horned rebel creature named \"Ночной Демон\" (\"Night Demon\"). The silhouette features massive crescent devil horns curving upward, retro wayfarer sunglasses cut out with glowing hot magenta lenses, athletic broad shoulders, and a slim curling silhouette of cigarette smoke rising from its mouth. The background is a hypnotic optical illusion spiral vortex with twisting radiant expanding rays in vibrant hot magenta pink (#FF007F) and fiery orange (#FF5500). High contrast, flat 2D screenprint poster art, clean razor-sharp vector contours, no 3D rendering, no shadows, square 1:1 aspect ratio.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"NIGHT DEMON\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cool horned rebel creature named \"Ночной Демон\" (\"Night Demon\"). The silhouette features massive crescent devil horns curving upward, retro wayfarer sunglasses cut out with glowing hot magenta lenses, athletic broad shoulders, and a slim curling silhouette of cigarette smoke rising from its mouth. The background is a hypnotic optical illusion spiral vortex with twisting radiant expanding rays in vibrant hot magenta pink (#FF007F) and fiery orange (#FF5500). High contrast, flat 2D screenprint poster art, clean razor-sharp vector contours, no 3D rendering, no shadows, square 1:1 aspect ratio.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cool horned rebel creature named \"Ночной Демон\" (\"Night Demon\"). The silhouette features massive crescent devil horns curving upward, retro wayfarer sunglasses cut out with glowing hot magenta lenses, athletic broad shoulders, and a slim curling silhouette of cigarette smoke rising from its mouth. The background is a hypnotic optical illusion spiral vortex with twisting radiant expanding rays in vibrant hot magenta pink (#FF007F) and fiery orange (#FF5500). High contrast, flat 2D screenprint poster art, clean razor-sharp vector contours, no 3D rendering, no shadows, square 1:1 aspect ratio."
+  },
+  {
+    "id": "male_02",
+    "num": 2,
+    "gender": "male",
+    "name": "Грешный Ангел",
+    "enName": "Sinful Angel",
+    "nickRu": "ГРЕШНЫЙ АНГЕЛ",
+    "nickEn": "SINFUL ANGEL",
+    "pattern": "Искаженная оптическая шахматка (Warped Op-Art Checkerboard)",
+    "colors": [
+      "#8A2BE2",
+      "#FAFF00"
+    ],
+    "paletteName": "Электрический Фиолет & Неоновый Лимон",
+    "heroDetail": "Падший ангел в кожаной косухе с поднятым воротником, остроконечными темными крыльями за спиной, маленькими рожками и светящимся лимонным нимбом, наклоненным набок.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ГРЕШНЫЙ АНГЕЛ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fallen angel named \"Грешный Ангел\" (\"Sinful Angel\"). The silhouette features jagged black folded angel wing tips behind leather-jacket shoulders with popped collar, sleek devil horns, and a glowing neon lemon-yellow tilted halo ring floating overhead with matching glowing yellow slit eyes. The background is an undulating warped optical illusion checkerboard grid bending in liquid perspective, colored in ultraviolet violet (#8A2BE2) and neon lemon yellow (#FAFF00). Flat 2D vector pop-art, bold graphic contours, no 3D, square 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SINFUL ANGEL\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fallen angel named \"Грешный Ангел\" (\"Sinful Angel\"). The silhouette features jagged black folded angel wing tips behind leather-jacket shoulders with popped collar, sleek devil horns, and a glowing neon lemon-yellow tilted halo ring floating overhead with matching glowing yellow slit eyes. The background is an undulating warped optical illusion checkerboard grid bending in liquid perspective, colored in ultraviolet violet (#8A2BE2) and neon lemon yellow (#FAFF00). Flat 2D vector pop-art, bold graphic contours, no 3D, square 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fallen angel named \"Грешный Ангел\" (\"Sinful Angel\"). The silhouette features jagged black folded angel wing tips behind leather-jacket shoulders with popped collar, sleek devil horns, and a glowing neon lemon-yellow tilted halo ring floating overhead with matching glowing yellow slit eyes. The background is an undulating warped optical illusion checkerboard grid bending in liquid perspective, colored in ultraviolet violet (#8A2BE2) and neon lemon yellow (#FAFF00). Flat 2D vector pop-art, bold graphic contours, no 3D, square 1:1."
+  },
+  {
+    "id": "male_03",
+    "num": 3,
+    "gender": "male",
+    "name": "Безумный Кролик",
+    "enName": "Mad Rabbit",
+    "nickRu": "БЕЗУМНЫЙ КРОЛИК",
+    "nickEn": "MAD RABBIT",
+    "pattern": "Психоделические плавящиеся поп-арт капли (Melting Acid Lava Blobs)",
+    "colors": [
+      "#39FF14",
+      "#FF007F"
+    ],
+    "paletteName": "Токсичный Лайм & Глубокая Фуксия",
+    "heroDetail": "Безумный заяц-панк с длинными асимметричными рваными ушами, круглыми очками с гипнотической спиралью и леденцом на палочке.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"БЕЗУМНЫЙ КРОЛИК\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an eccentric creature named \"Безумный Кролик\" (\"Mad Rabbit\"). The silhouette features long chaotic torn rabbit ears sticking up at different angles, round glasses cut out with glowing toxic-lime hypnotic spiral pupils, and the silhouette of a round lollipop stick held in its mouth. The background is a psychedelic liquid melting lava lamp pattern of fluid amoeba blobs and drips in high-contrast toxic lime green (#39FF14) and deep fuchsia magenta (#FF007F). Flat screenprint aesthetic, sharp vector edges, no 3D, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"MAD RABBIT\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an eccentric creature named \"Безумный Кролик\" (\"Mad Rabbit\"). The silhouette features long chaotic torn rabbit ears sticking up at different angles, round glasses cut out with glowing toxic-lime hypnotic spiral pupils, and the silhouette of a round lollipop stick held in its mouth. The background is a psychedelic liquid melting lava lamp pattern of fluid amoeba blobs and drips in high-contrast toxic lime green (#39FF14) and deep fuchsia magenta (#FF007F). Flat screenprint aesthetic, sharp vector edges, no 3D, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an eccentric creature named \"Безумный Кролик\" (\"Mad Rabbit\"). The silhouette features long chaotic torn rabbit ears sticking up at different angles, round glasses cut out with glowing toxic-lime hypnotic spiral pupils, and the silhouette of a round lollipop stick held in its mouth. The background is a psychedelic liquid melting lava lamp pattern of fluid amoeba blobs and drips in high-contrast toxic lime green (#39FF14) and deep fuchsia magenta (#FF007F). Flat screenprint aesthetic, sharp vector edges, no 3D, 1:1 square."
+  },
+  {
+    "id": "male_04",
+    "num": 4,
+    "gender": "male",
+    "name": "Чертовски Хорош",
+    "enName": "Damn Handsome",
+    "nickRu": "ЧЕРТОВСКИ ХОРОШ",
+    "nickEn": "DAMN HANDSOME",
+    "pattern": "Шевроны и динамичные зигзаги 70-х (Retro Mod Geometric Chevrons)",
+    "colors": [
+      "#00F0FF",
+      "#FF2A6D"
+    ],
+    "paletteName": "Кибер-Бирюза & Коралловый Рубин",
+    "heroDetail": "Стильный соблазнительный денди в водолазке, с идеальными зачесанными назад рогами-локонами, моноклем на одном глазу и бокалом мартини в руке.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ЧЕРТОВСКИ ХОРОШ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dapper handsome devil named \"Чертовски Хорош\" (\"Damn Handsome\"). The silhouette features sweeping polished devil horns curving back like slicked hair, a sharp high turtleneck sweater collar, an arched glowing cyber-cyan monocle eye cutout, and the silhouette of a martini cocktail glass raised near the shoulder. The background is a retro-futuristic geometric pattern of sharp undulating zigzags and chevron stripes in cyber-cyan (#00F0FF) and coral ruby red (#FF2A6D). Flat vector pop art, high contrast, clean contours, no 3D, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"DAMN HANDSOME\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dapper handsome devil named \"Чертовски Хорош\" (\"Damn Handsome\"). The silhouette features sweeping polished devil horns curving back like slicked hair, a sharp high turtleneck sweater collar, an arched glowing cyber-cyan monocle eye cutout, and the silhouette of a martini cocktail glass raised near the shoulder. The background is a retro-futuristic geometric pattern of sharp undulating zigzags and chevron stripes in cyber-cyan (#00F0FF) and coral ruby red (#FF2A6D). Flat vector pop art, high contrast, clean contours, no 3D, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dapper handsome devil named \"Чертовски Хорош\" (\"Damn Handsome\"). The silhouette features sweeping polished devil horns curving back like slicked hair, a sharp high turtleneck sweater collar, an arched glowing cyber-cyan monocle eye cutout, and the silhouette of a martini cocktail glass raised near the shoulder. The background is a retro-futuristic geometric pattern of sharp undulating zigzags and chevron stripes in cyber-cyan (#00F0FF) and coral ruby red (#FF2A6D). Flat vector pop art, high contrast, clean contours, no 3D, 1:1 square."
+  },
+  {
+    "id": "male_05",
+    "num": 5,
+    "gender": "male",
+    "name": "Кибер Дьявол",
+    "enName": "Cyber Devil",
+    "nickRu": "КИБЕР ДЬЯВОЛ",
+    "nickEn": "CYBER DEVIL",
+    "pattern": "Оптический лабиринт и микросхемы (Op-Art Cyber Maze Grid)",
+    "colors": [
+      "#05D9E8",
+      "#FF6C00"
+    ],
+    "paletteName": "Электрический Циан & Неоновый Мандарин",
+    "heroDetail": "Кибер-охотник в массивных футуристичных наушниках поверх головы, с угловатыми рогами-антеннами и узким светящимся визором.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"КИБЕР ДЬЯВОЛ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cyberpunk entity named \"Кибер Дьявол\" (\"Cyber Devil\"). The silhouette features bulky over-ear DJ cyber headphones, segmented angular mechanical antenna horns, and a glowing neon cyan horizontal visor bar scanning across the face with circuitry tick marks. The background is an optical illusion geometric labyrinth grid of curving circuit-trace conduits in electric cyber-cyan (#05D9E8) and neon tangerine (#FF6C00). Sharp vector illustration, screenprint poster style, no gradients, square 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"CYBER DEVIL\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cyberpunk entity named \"Кибер Дьявол\" (\"Cyber Devil\"). The silhouette features bulky over-ear DJ cyber headphones, segmented angular mechanical antenna horns, and a glowing neon cyan horizontal visor bar scanning across the face with circuitry tick marks. The background is an optical illusion geometric labyrinth grid of curving circuit-trace conduits in electric cyber-cyan (#05D9E8) and neon tangerine (#FF6C00). Sharp vector illustration, screenprint poster style, no gradients, square 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cyberpunk entity named \"Кибер Дьявол\" (\"Cyber Devil\"). The silhouette features bulky over-ear DJ cyber headphones, segmented angular mechanical antenna horns, and a glowing neon cyan horizontal visor bar scanning across the face with circuitry tick marks. The background is an optical illusion geometric labyrinth grid of curving circuit-trace conduits in electric cyber-cyan (#05D9E8) and neon tangerine (#FF6C00). Sharp vector illustration, screenprint poster style, no gradients, square 1:1."
+  },
+  {
+    "id": "male_06",
+    "num": 6,
+    "gender": "male",
+    "name": "Сладкий Яд",
+    "enName": "Sweet Poison",
+    "nickRu": "СЛАДКИЙ ЯД",
+    "nickEn": "SWEET POISON",
+    "pattern": "Жидкий психоделический мрамор (Trippy Liquid Marble Swirl)",
+    "colors": [
+      "#00FF87",
+      "#6000FF"
+    ],
+    "paletteName": "Изумрудный Неон & Королевский Пурпур",
+    "heroDetail": "Таинственный силуэт алхимика, вокруг плеч которого обвивается кобра с раскрытым капюшоном, образуя причудливые рога, со светящимися зелеными зрачками.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"СЛАДКИЙ ЯД\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dangerous charmer named \"Сладкий Яд\" (\"Sweet Poison\"). The silhouette features a hooded figure with a hooded cobra silhouette coiling gracefully around the neck and forming horned silhouette crests, featuring glowing emerald-green feline serpent slit eyes and a dripping fang silhouette. The background is a hypnotic liquid marble fluid swirl pattern resembling ebru dye marbling in toxic neon emerald (#00FF87) and royal purple (#6000FF). Clean flat 2D graphic art, high contrast, no 3D rendering, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SWEET POISON\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dangerous charmer named \"Сладкий Яд\" (\"Sweet Poison\"). The silhouette features a hooded figure with a hooded cobra silhouette coiling gracefully around the neck and forming horned silhouette crests, featuring glowing emerald-green feline serpent slit eyes and a dripping fang silhouette. The background is a hypnotic liquid marble fluid swirl pattern resembling ebru dye marbling in toxic neon emerald (#00FF87) and royal purple (#6000FF). Clean flat 2D graphic art, high contrast, no 3D rendering, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dangerous charmer named \"Сладкий Яд\" (\"Sweet Poison\"). The silhouette features a hooded figure with a hooded cobra silhouette coiling gracefully around the neck and forming horned silhouette crests, featuring glowing emerald-green feline serpent slit eyes and a dripping fang silhouette. The background is a hypnotic liquid marble fluid swirl pattern resembling ebru dye marbling in toxic neon emerald (#00FF87) and royal purple (#6000FF). Clean flat 2D graphic art, high contrast, no 3D rendering, 1:1 square."
+  },
+  {
+    "id": "male_07",
+    "num": 7,
+    "gender": "male",
+    "name": "Космический Монстр",
+    "enName": "Cosmic Monster",
+    "nickRu": "КОСМИЧЕСКИЙ МОНСТР",
+    "nickEn": "COSMIC MONSTER",
+    "pattern": "Астральные вспышки и взрыв сверхновой (Psychedelic Starburst Rays)",
+    "colors": [
+      "#3D00FF",
+      "#FF00B8"
+    ],
+    "paletteName": "Астральный Индиго & Неоновый Розовый",
+    "heroDetail": "Ретро-астронавт в круглом шлеме скафандра, внутри которого ухмыляется одноглазый пришелец с тремя усиками-рожками.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"КОСМИЧЕСКИЙ МОНСТР\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a sci-fi astronaut creature named \"Космический Монстр\" (\"Cosmic Monster\"). The silhouette shows a retro round astronaut space-helmet with cute curly antenna horns on top, inside which glows a single giant neon pink cyclops eye with a star-shaped pupil and a wide cheeky grin. The background is an explosive hypnotic op-art starburst pattern with radiating kaleidoscopic rays in deep astral indigo (#3D00FF) and radiant neon pink (#FF00B8). Flat vector poster art, bold graphic lines, no 3D, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"COSMIC MONSTER\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a sci-fi astronaut creature named \"Космический Монстр\" (\"Cosmic Monster\"). The silhouette shows a retro round astronaut space-helmet with cute curly antenna horns on top, inside which glows a single giant neon pink cyclops eye with a star-shaped pupil and a wide cheeky grin. The background is an explosive hypnotic op-art starburst pattern with radiating kaleidoscopic rays in deep astral indigo (#3D00FF) and radiant neon pink (#FF00B8). Flat vector poster art, bold graphic lines, no 3D, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a sci-fi astronaut creature named \"Космический Монстр\" (\"Cosmic Monster\"). The silhouette shows a retro round astronaut space-helmet with cute curly antenna horns on top, inside which glows a single giant neon pink cyclops eye with a star-shaped pupil and a wide cheeky grin. The background is an explosive hypnotic op-art starburst pattern with radiating kaleidoscopic rays in deep astral indigo (#3D00FF) and radiant neon pink (#FF00B8). Flat vector poster art, bold graphic lines, no 3D, 1:1 square."
+  },
+  {
+    "id": "male_08",
+    "num": 8,
+    "gender": "male",
+    "name": "Лукавый Лис",
+    "enName": "Sly Fox",
+    "nickRu": "ЛУКАВЫЙ ЛИС",
+    "nickEn": "SLY FOX",
+    "pattern": "Искаженные оптические полосы тигра/зебры (Warped Animal Op-Art Waves)",
+    "colors": [
+      "#FF5100",
+      "#0055FF"
+    ],
+    "paletteName": "Огненный Янтарь & Электрический Кобальт",
+    "heroDetail": "Дерзкий лис в панаме (bucket hat), сквозь которую продеты острые уши, с кольцом-сережкой в ухе и хитрым прищуром.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ЛУКАВЫЙ ЛИС\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a streetwear trickster fox named \"Лукавый Лис\" (\"Sly Fox\"). The silhouette features a tilted streetwear bucket hat with holes where tall pointed fox ears emerge, a dangling hoop earring on one ear, a toothpick in its mouth, and glowing amber-orange slanted fox eyes. The background is a warped optical illusion animal stripe pattern of liquid zebra-tiger contours in blazing amber orange (#FF5100) and electric cobalt blue (#0055FF). Flat 2D vector screenprint aesthetic, sharp contours, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SLY FOX\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a streetwear trickster fox named \"Лукавый Лис\" (\"Sly Fox\"). The silhouette features a tilted streetwear bucket hat with holes where tall pointed fox ears emerge, a dangling hoop earring on one ear, a toothpick in its mouth, and glowing amber-orange slanted fox eyes. The background is a warped optical illusion animal stripe pattern of liquid zebra-tiger contours in blazing amber orange (#FF5100) and electric cobalt blue (#0055FF). Flat 2D vector screenprint aesthetic, sharp contours, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a streetwear trickster fox named \"Лукавый Лис\" (\"Sly Fox\"). The silhouette features a tilted streetwear bucket hat with holes where tall pointed fox ears emerge, a dangling hoop earring on one ear, a toothpick in its mouth, and glowing amber-orange slanted fox eyes. The background is a warped optical illusion animal stripe pattern of liquid zebra-tiger contours in blazing amber orange (#FF5100) and electric cobalt blue (#0055FF). Flat 2D vector screenprint aesthetic, sharp contours, 1:1 square."
+  },
+  {
+    "id": "male_09",
+    "num": 9,
+    "gender": "male",
+    "name": "Дикий Зверь",
+    "enName": "Wild Beast",
+    "nickRu": "ДИКИЙ ЗВЕРЬ",
+    "nickEn": "WILD BEAST",
+    "pattern": "Концентрическая топографическая карта (Isometric Topo Elevation Curves)",
+    "colors": [
+      "#FFD700",
+      "#D90429"
+    ],
+    "paletteName": "Солнечное Золото & Рубиновый Багрянец",
+    "heroDetail": "Байкер-минотавр в кожаном жилете с заклепками на плечах, массивными изогнутыми рогами буйвола и светящимся кольцом в носу.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ДИКИЙ ЗВЕРЬ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a powerhouse beast named \"Дикий Зверь\" (\"Wild Beast\"). The silhouette features massive horizontal curved buffalo horns, spiked biker leather vest shoulders, glowing gold eyes, and a glowing gold septum ring hanging from the snout. The background is a hypnotic topographic elevation contour pattern with dense concentric wavy terrain lines in solar gold (#FFD700) and deep crimson ruby (#D90429). Pure 2D flat vector art, bold heavy lines, screenprint style, no 3D, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"WILD BEAST\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a powerhouse beast named \"Дикий Зверь\" (\"Wild Beast\"). The silhouette features massive horizontal curved buffalo horns, spiked biker leather vest shoulders, glowing gold eyes, and a glowing gold septum ring hanging from the snout. The background is a hypnotic topographic elevation contour pattern with dense concentric wavy terrain lines in solar gold (#FFD700) and deep crimson ruby (#D90429). Pure 2D flat vector art, bold heavy lines, screenprint style, no 3D, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a powerhouse beast named \"Дикий Зверь\" (\"Wild Beast\"). The silhouette features massive horizontal curved buffalo horns, spiked biker leather vest shoulders, glowing gold eyes, and a glowing gold septum ring hanging from the snout. The background is a hypnotic topographic elevation contour pattern with dense concentric wavy terrain lines in solar gold (#FFD700) and deep crimson ruby (#D90429). Pure 2D flat vector art, bold heavy lines, screenprint style, no 3D, 1:1 square."
+  },
+  {
+    "id": "male_10",
+    "num": 10,
+    "gender": "male",
+    "name": "Огненный Бунтарь",
+    "enName": "Fiery Rebel",
+    "nickRu": "ОГНЕННЫЙ БУНТАРЬ",
+    "nickEn": "FIERY REBEL",
+    "pattern": "Молнии и электрические разряды (Op-Art Jagged Lightning Flares)",
+    "colors": [
+      "#FF2200",
+      "#00F0FF"
+    ],
+    "paletteName": "Пламенный Алый & Неоновая Аква",
+    "heroDetail": "Рок-музыкант с острым ирокезом, ошейником с шипами, грифом электрогитары за плечом и пламенным взглядом.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ОГНЕННЫЙ БУНТАРЬ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a rockstar rebel named \"Огненный Бунтарь\" (\"Fiery Rebel\"). The silhouette features a razor-sharp spiked mohawk hairstyle merging into horn spikes, a studded punk choker, the headstock silhouette of an electric guitar peeking over one shoulder, and glowing electric aqua-cyan sharp cat-like eyes. The background is a dramatic op-art pattern of exploding jagged electric lightning bolts and zigzag ripples in blazing fire red (#FF2200) and neon aqua cyan (#00F0FF). Flat vector pop art, high contrast, clean edges, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"FIERY REBEL\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a rockstar rebel named \"Огненный Бунтарь\" (\"Fiery Rebel\"). The silhouette features a razor-sharp spiked mohawk hairstyle merging into horn spikes, a studded punk choker, the headstock silhouette of an electric guitar peeking over one shoulder, and glowing electric aqua-cyan sharp cat-like eyes. The background is a dramatic op-art pattern of exploding jagged electric lightning bolts and zigzag ripples in blazing fire red (#FF2200) and neon aqua cyan (#00F0FF). Flat vector pop art, high contrast, clean edges, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a rockstar rebel named \"Огненный Бунтарь\" (\"Fiery Rebel\"). The silhouette features a razor-sharp spiked mohawk hairstyle merging into horn spikes, a studded punk choker, the headstock silhouette of an electric guitar peeking over one shoulder, and glowing electric aqua-cyan sharp cat-like eyes. The background is a dramatic op-art pattern of exploding jagged electric lightning bolts and zigzag ripples in blazing fire red (#FF2200) and neon aqua cyan (#00F0FF). Flat vector pop art, high contrast, clean edges, 1:1."
+  },
+  {
+    "id": "male_11",
+    "num": 11,
+    "gender": "male",
+    "name": "Тайный Искуситель",
+    "enName": "Secret Tempter",
+    "nickRu": "ТАЙНЫЙ ИСКУСИТЕЛЬ",
+    "nickEn": "SECRET TEMPTER",
+    "pattern": "Гипнотические замочные скважины и арки (Hypnotic Keyhole Tunnel Curves)",
+    "colors": [
+      "#7209B7",
+      "#FFB703"
+    ],
+    "paletteName": "Аметистовый Фиолет & Медовое Золото",
+    "heroDetail": "Мистический фантом в венецианской маске чумного доктора с длинным изогнутым клювом, сквозь капюшон которого вздымаются изящные козлиные рога.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ТАЙНЫЙ ИСКУСИТЕЛЬ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an enigmatic phantom named \"Тайный Искуситель\" (\"Secret Tempter\"). The silhouette features a hooded figure wearing a stylized Venetian plague doctor beak mask, with long elegant twisted goat horns protruding through the hood, and glowing warm honey-gold circular lens eyes. The background is an optical illusion infinite keyhole tunnel pattern of nested concentric arched portals in deep amethyst violet (#7209B7) and warm honey gold (#FFB703). Flat 2D vector, razor-sharp contours, no 3D, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SECRET TEMPTER\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an enigmatic phantom named \"Тайный Искуситель\" (\"Secret Tempter\"). The silhouette features a hooded figure wearing a stylized Venetian plague doctor beak mask, with long elegant twisted goat horns protruding through the hood, and glowing warm honey-gold circular lens eyes. The background is an optical illusion infinite keyhole tunnel pattern of nested concentric arched portals in deep amethyst violet (#7209B7) and warm honey gold (#FFB703). Flat 2D vector, razor-sharp contours, no 3D, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an enigmatic phantom named \"Тайный Искуситель\" (\"Secret Tempter\"). The silhouette features a hooded figure wearing a stylized Venetian plague doctor beak mask, with long elegant twisted goat horns protruding through the hood, and glowing warm honey-gold circular lens eyes. The background is an optical illusion infinite keyhole tunnel pattern of nested concentric arched portals in deep amethyst violet (#7209B7) and warm honey gold (#FFB703). Flat 2D vector, razor-sharp contours, no 3D, 1:1 square."
+  },
+  {
+    "id": "male_12",
+    "num": 12,
+    "gender": "male",
+    "name": "Бархатный Чёрт",
+    "enName": "Velvet Imp",
+    "nickRu": "БАРХАТНЫЙ ЧЁРТ",
+    "nickEn": "VELVET IMP",
+    "pattern": "Поп-арт точки Бен-Дей (Pop-Art Halftone Benday Dot Matrix)",
+    "colors": [
+      "#E01A4F",
+      "#0CF574"
+    ],
+    "paletteName": "Глубокий Кармин & Мятный Щербет",
+    "heroDetail": "Озорной чертенок в бейсболке козырьком назад, из-под которой торчат витые бараньи рожки, надувающий розовый пузырь жвачки.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"БАРХАТНЫЙ ЧЁРТ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cheeky street imp named \"Бархатный Чёрт\" (\"Velvet Imp\"). The silhouette features a backwards snapback baseball cap with spiraled ram horns poking out on sides, and the silhouette of a large round bubblegum bubble blown from its mouth, with glowing mint-green mischievous eyes. The background is a retro pop-art halftone pattern with optical shifting dots and wavy benday grids in deep carmine red (#E01A4F) and electric mint sherbet green (#0CF574). Flat 2D screenprint illustration, high contrast, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"VELVET IMP\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cheeky street imp named \"Бархатный Чёрт\" (\"Velvet Imp\"). The silhouette features a backwards snapback baseball cap with spiraled ram horns poking out on sides, and the silhouette of a large round bubblegum bubble blown from its mouth, with glowing mint-green mischievous eyes. The background is a retro pop-art halftone pattern with optical shifting dots and wavy benday grids in deep carmine red (#E01A4F) and electric mint sherbet green (#0CF574). Flat 2D screenprint illustration, high contrast, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cheeky street imp named \"Бархатный Чёрт\" (\"Velvet Imp\"). The silhouette features a backwards snapback baseball cap with spiraled ram horns poking out on sides, and the silhouette of a large round bubblegum bubble blown from its mouth, with glowing mint-green mischievous eyes. The background is a retro pop-art halftone pattern with optical shifting dots and wavy benday grids in deep carmine red (#E01A4F) and electric mint sherbet green (#0CF574). Flat 2D screenprint illustration, high contrast, 1:1."
+  },
+  {
+    "id": "male_13",
+    "num": 13,
+    "gender": "male",
+    "name": "Мрачный Романтик",
+    "enName": "Dark Romantic",
+    "nickRu": "МРАЧНЫЙ РОМАНТИК",
+    "nickEn": "DARK ROMANTIC",
+    "pattern": "Мрачные летучие мыши и полумесяцы (Op-Art Bats & Crescent Moons Waves)",
+    "colors": [
+      "#1B1B3A",
+      "#FF85A1"
+    ],
+    "paletteName": "Полуночный Сапфир & Пудровая Роза",
+    "heroDetail": "Аристократичный граф-вампир в плаще со стоячим воротником, ушами летучей мыши, кружевным жабо и бокалом с вином в руке.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"МРАЧНЫЙ РОМАНТИК\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a gothic vampire aristocrat named \"Мрачный Романтик\" (\"Dark Romantic\"). The silhouette features pointed wing-like bat ears, an extravagant Dracula cape with a standing high collar, ruffled cravat tie, glowing rose-pink crescent moon eyes, and a delicate wine glass silhouette raised at the shoulder. The background is an optical tessellation of liquid ripple waves formed by repeating stylized bat wings and crescent moons in midnight navy (#1B1B3A) and vibrant dusty rose (#FF85A1). Flat 2D vector art, clean sharp lines, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"DARK ROMANTIC\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a gothic vampire aristocrat named \"Мрачный Романтик\" (\"Dark Romantic\"). The silhouette features pointed wing-like bat ears, an extravagant Dracula cape with a standing high collar, ruffled cravat tie, glowing rose-pink crescent moon eyes, and a delicate wine glass silhouette raised at the shoulder. The background is an optical tessellation of liquid ripple waves formed by repeating stylized bat wings and crescent moons in midnight navy (#1B1B3A) and vibrant dusty rose (#FF85A1). Flat 2D vector art, clean sharp lines, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a gothic vampire aristocrat named \"Мрачный Романтик\" (\"Dark Romantic\"). The silhouette features pointed wing-like bat ears, an extravagant Dracula cape with a standing high collar, ruffled cravat tie, glowing rose-pink crescent moon eyes, and a delicate wine glass silhouette raised at the shoulder. The background is an optical tessellation of liquid ripple waves formed by repeating stylized bat wings and crescent moons in midnight navy (#1B1B3A) and vibrant dusty rose (#FF85A1). Flat 2D vector art, clean sharp lines, 1:1."
+  },
+  {
+    "id": "male_14",
+    "num": 14,
+    "gender": "male",
+    "name": "Пьяный Сатир",
+    "enName": "Drunken Satyr",
+    "nickRu": "ПЬЯНЫЙ САТИР",
+    "nickEn": "DRUNKEN SATYR",
+    "pattern": "Психоделические круги виноградной лозы (Psychedelic Swirling Vines)",
+    "colors": [
+      "#9D4EDD",
+      "#FF9E00"
+    ],
+    "paletteName": "Электрический Виноград & Спелый Апельсин",
+    "heroDetail": "Гедонистический фавн в круглых очках Джона Леннона, с венком из плюща и винограда, вплетенным в витые рога, и широкой ухмылкой.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ПЬЯНЫЙ САТИР\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a Dionysian party faun named \"Пьяный Сатир\" (\"Drunken Satyr\"). The silhouette features heavy textured curling ram horns intertwined with ivy leaves, retro round hippie wire-sunglasses cut out with glowing orange horizontal goat pupils, and a broad ecstatic smile. The background is a psychedelic swirl of undulating curling grapevine waves and liquid whirlpool rings in electric grape purple (#9D4EDD) and vivid orange (#FF9E00). Flat graphic art, screenprint aesthetic, no 3D, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"DRUNKEN SATYR\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a Dionysian party faun named \"Пьяный Сатир\" (\"Drunken Satyr\"). The silhouette features heavy textured curling ram horns intertwined with ivy leaves, retro round hippie wire-sunglasses cut out with glowing orange horizontal goat pupils, and a broad ecstatic smile. The background is a psychedelic swirl of undulating curling grapevine waves and liquid whirlpool rings in electric grape purple (#9D4EDD) and vivid orange (#FF9E00). Flat graphic art, screenprint aesthetic, no 3D, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a Dionysian party faun named \"Пьяный Сатир\" (\"Drunken Satyr\"). The silhouette features heavy textured curling ram horns intertwined with ivy leaves, retro round hippie wire-sunglasses cut out with glowing orange horizontal goat pupils, and a broad ecstatic smile. The background is a psychedelic swirl of undulating curling grapevine waves and liquid whirlpool rings in electric grape purple (#9D4EDD) and vivid orange (#FF9E00). Flat graphic art, screenprint aesthetic, no 3D, 1:1 square."
+  },
+  {
+    "id": "male_15",
+    "num": 15,
+    "gender": "male",
+    "name": "Дерзкий Фавн",
+    "enName": "Bold Faun",
+    "nickRu": "ДЕРЗКИЙ ФАВН",
+    "nickEn": "BOLD FAUN",
+    "pattern": "Оптические концентрические кольца среза дерева (Hypnotic Woodgrain Growth Rings)",
+    "colors": [
+      "#00F5D4",
+      "#7B2CBF"
+    ],
+    "paletteName": "Изумрудная Бирюза & Темная Слива",
+    "heroDetail": "Скейтер-фаун в шапке-бини, из-под которой растут ветвистые молодые оленьи рога, в расстегнутом худи и с наушником в одном ухе.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ДЕРЗКИЙ ФАВН\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an urban woodland faun named \"Дерзкий Фавн\" (\"Bold Faun\"). The silhouette features a slouchy knit beanie hat with branching stylized deer antler horns bursting out, an unzipped hoodie collar silhouette, glowing electric turquoise almond eyes, and a dangling earbud cord. The background is an optical illusion pattern of distorted concentric woodgrain growth rings in electric emerald turquoise (#00F5D4) and deep plum violet (#7B2CBF). Flat 2D vector, sharp clean contours, no 3D, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"BOLD FAUN\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an urban woodland faun named \"Дерзкий Фавн\" (\"Bold Faun\"). The silhouette features a slouchy knit beanie hat with branching stylized deer antler horns bursting out, an unzipped hoodie collar silhouette, glowing electric turquoise almond eyes, and a dangling earbud cord. The background is an optical illusion pattern of distorted concentric woodgrain growth rings in electric emerald turquoise (#00F5D4) and deep plum violet (#7B2CBF). Flat 2D vector, sharp clean contours, no 3D, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an urban woodland faun named \"Дерзкий Фавн\" (\"Bold Faun\"). The silhouette features a slouchy knit beanie hat with branching stylized deer antler horns bursting out, an unzipped hoodie collar silhouette, glowing electric turquoise almond eyes, and a dangling earbud cord. The background is an optical illusion pattern of distorted concentric woodgrain growth rings in electric emerald turquoise (#00F5D4) and deep plum violet (#7B2CBF). Flat 2D vector, sharp clean contours, no 3D, 1:1 square."
+  },
+  {
+    "id": "male_16",
+    "num": 16,
+    "gender": "male",
+    "name": "Ночной Охотник",
+    "enName": "Night Hunter",
+    "nickRu": "НОЧНОЙ ОХОТНИК",
+    "nickEn": "NIGHT HUNTER",
+    "pattern": "Геометрическая камуфляжная сетка (Op-Art Stealth Hexagonal Grid)",
+    "colors": [
+      "#0A1128",
+      "#70E000"
+    ],
+    "paletteName": "Глубокая Тень & Кислотный Лайм",
+    "heroDetail": "Ниндзя-пантера с маской на нижней половине лица, рукоятью катаны за спиной, прижатыми хищными ушами и светящимися зелеными глазами-щелями.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"НОЧНОЙ ОХОТНИК\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a stealth ninja predator named \"Ночной Охотник\" (\"Night Hunter\"). The silhouette features sleek panther ears, a tactical ninja face-mask covering the lower jaw, a diagonal sword hilt silhouette extending behind the shoulder, and twin razor-sharp acid-lime glowing predator slit eyes. The background is an optical illusion distorted hexagonal honeycomb grid warping in depth in deep nocturnal navy (#0A1128) and vivid acid lime (#70E000). Flat vector screenprint art, high contrast, clean edges, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"NIGHT HUNTER\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a stealth ninja predator named \"Ночной Охотник\" (\"Night Hunter\"). The silhouette features sleek panther ears, a tactical ninja face-mask covering the lower jaw, a diagonal sword hilt silhouette extending behind the shoulder, and twin razor-sharp acid-lime glowing predator slit eyes. The background is an optical illusion distorted hexagonal honeycomb grid warping in depth in deep nocturnal navy (#0A1128) and vivid acid lime (#70E000). Flat vector screenprint art, high contrast, clean edges, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a stealth ninja predator named \"Ночной Охотник\" (\"Night Hunter\"). The silhouette features sleek panther ears, a tactical ninja face-mask covering the lower jaw, a diagonal sword hilt silhouette extending behind the shoulder, and twin razor-sharp acid-lime glowing predator slit eyes. The background is an optical illusion distorted hexagonal honeycomb grid warping in depth in deep nocturnal navy (#0A1128) and vivid acid lime (#70E000). Flat vector screenprint art, high contrast, clean edges, 1:1."
+  },
+  {
+    "id": "male_17",
+    "num": 17,
+    "gender": "male",
+    "name": "Мистический Бес",
+    "enName": "Mystic Imp",
+    "nickRu": "МИСТИЧЕСКИЙ БЕС",
+    "nickEn": "MYSTIC IMP",
+    "pattern": "Калейдоскопическая мандала (Trippy Psychedelic Kaleidoscope Mandala)",
+    "colors": [
+      "#FF0055",
+      "#00FFA3"
+    ],
+    "paletteName": "Кибер-Фуксия & Яркая Мятная Бирюза",
+    "heroDetail": "Четырехглазый бес-йог с двумя парами рогов, держащий дымящуюся палочку благовоний, с четырьмя светящимися бирюзовыми глазами.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"МИСТИЧЕСКИЙ БЕС\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an occult mystic entity named \"Мистический Бес\" (\"Mystic Imp\"). The silhouette features two sets of curved horns (one large, one small), slender shoulders, a hand silhouette holding a smoking incense stick with swirling smoke, and four glowing mint-turquoise eyes stacked in two hypnotic rows. The background is a psychedelic kaleidoscope mandala pattern of radiating optical fractal petals in cyberpunk fuchsia (#FF0055) and bright mint turquoise (#00FFA3). Flat 2D vector, razor-sharp edges, no gradients on black, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"MYSTIC IMP\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an occult mystic entity named \"Мистический Бес\" (\"Mystic Imp\"). The silhouette features two sets of curved horns (one large, one small), slender shoulders, a hand silhouette holding a smoking incense stick with swirling smoke, and four glowing mint-turquoise eyes stacked in two hypnotic rows. The background is a psychedelic kaleidoscope mandala pattern of radiating optical fractal petals in cyberpunk fuchsia (#FF0055) and bright mint turquoise (#00FFA3). Flat 2D vector, razor-sharp edges, no gradients on black, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an occult mystic entity named \"Мистический Бес\" (\"Mystic Imp\"). The silhouette features two sets of curved horns (one large, one small), slender shoulders, a hand silhouette holding a smoking incense stick with swirling smoke, and four glowing mint-turquoise eyes stacked in two hypnotic rows. The background is a psychedelic kaleidoscope mandala pattern of radiating optical fractal petals in cyberpunk fuchsia (#FF0055) and bright mint turquoise (#00FFA3). Flat 2D vector, razor-sharp edges, no gradients on black, 1:1."
+  },
+  {
+    "id": "male_18",
+    "num": 18,
+    "gender": "male",
+    "name": "Грешник без вины",
+    "enName": "Guiltless Sinner",
+    "nickRu": "ГРЕШНИК БЕЗ ВИНЫ",
+    "nickEn": "GUILTLESS SINNER",
+    "pattern": "Плавящиеся оптические сердца (Melting Op-Art Hypnotic Hearts)",
+    "colors": [
+      "#E63946",
+      "#A8DADC"
+    ],
+    "paletteName": "Алый Кардинал & Арктический Лед",
+    "heroDetail": "Романтичный бунтарь в пальто с поднятым воротником, увенчанный рожками, с подвеской в виде разбитого сердца на груди и ледяным моноклем.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ГРЕШНИК БЕЗ ВИНЫ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a romantic bad-boy named \"Грешник без вины\" (\"Guiltless Sinner\"). The silhouette features swept-back devil horns, an open trench coat silhouette with high lapels, a pierced broken-heart chain necklace silhouette on the chest, and a glowing pale arctic-blue heart-shaped monocle eye with a black pupil. The background is a hypnotic pattern of nested melting optical hearts undulating like water ripples in deep cardinal red (#E63946) and pale arctic ice blue (#A8DADC). Bold flat vector, clean contours, no 3D, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"GUILTLESS SINNER\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a romantic bad-boy named \"Грешник без вины\" (\"Guiltless Sinner\"). The silhouette features swept-back devil horns, an open trench coat silhouette with high lapels, a pierced broken-heart chain necklace silhouette on the chest, and a glowing pale arctic-blue heart-shaped monocle eye with a black pupil. The background is a hypnotic pattern of nested melting optical hearts undulating like water ripples in deep cardinal red (#E63946) and pale arctic ice blue (#A8DADC). Bold flat vector, clean contours, no 3D, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a romantic bad-boy named \"Грешник без вины\" (\"Guiltless Sinner\"). The silhouette features swept-back devil horns, an open trench coat silhouette with high lapels, a pierced broken-heart chain necklace silhouette on the chest, and a glowing pale arctic-blue heart-shaped monocle eye with a black pupil. The background is a hypnotic pattern of nested melting optical hearts undulating like water ripples in deep cardinal red (#E63946) and pale arctic ice blue (#A8DADC). Bold flat vector, clean contours, no 3D, 1:1."
+  },
+  {
+    "id": "male_19",
+    "num": 19,
+    "gender": "male",
+    "name": "Теневой Идол",
+    "enName": "Shadow Idol",
+    "nickRu": "ТЕНЕВОЙ ИДОЛ",
+    "nickEn": "SHADOW IDOL",
+    "pattern": "Древний геометрический меандр майя (Op-Art Aztec Geometric Meander)",
+    "colors": [
+      "#1D2A44",
+      "#FF9F1C"
+    ],
+    "paletteName": "Теневой Графит & Закатный Янтарь",
+    "heroDetail": "Каменный голем-божество в массивном геометрическом головном уборе с квадратными рогами, сквозь трещину на лице которого бьет луч янтарного света.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ТЕНЕВОЙ ИДОЛ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a monolithic ancient idol named \"Теневой Идол\" (\"Shadow Idol\"). The silhouette features heavy angular blocky horns reminiscent of an Aztec ceremonial headdress, broad stone-cut shoulders, and a jagged glowing neon amber-orange vertical fracture line tearing through the head with one blazing eye glowing inside the crack. The background is an optical illusion pattern of interlocking stepped geometric meanders and labyrinth key waves in dark slate indigo (#1D2A44) and radiant sunset amber (#FF9F1C). Flat 2D vector, heavy contours, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SHADOW IDOL\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a monolithic ancient idol named \"Теневой Идол\" (\"Shadow Idol\"). The silhouette features heavy angular blocky horns reminiscent of an Aztec ceremonial headdress, broad stone-cut shoulders, and a jagged glowing neon amber-orange vertical fracture line tearing through the head with one blazing eye glowing inside the crack. The background is an optical illusion pattern of interlocking stepped geometric meanders and labyrinth key waves in dark slate indigo (#1D2A44) and radiant sunset amber (#FF9F1C). Flat 2D vector, heavy contours, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a monolithic ancient idol named \"Теневой Идол\" (\"Shadow Idol\"). The silhouette features heavy angular blocky horns reminiscent of an Aztec ceremonial headdress, broad stone-cut shoulders, and a jagged glowing neon amber-orange vertical fracture line tearing through the head with one blazing eye glowing inside the crack. The background is an optical illusion pattern of interlocking stepped geometric meanders and labyrinth key waves in dark slate indigo (#1D2A44) and radiant sunset amber (#FF9F1C). Flat 2D vector, heavy contours, 1:1 square."
+  },
+  {
+    "id": "male_20",
+    "num": 20,
+    "gender": "male",
+    "name": "Электрический Демон",
+    "enName": "Electric Demon",
+    "nickRu": "ЭЛЕКТРИЧЕСКИЙ ДЕМОН",
+    "nickEn": "ELECTRIC DEMON",
+    "pattern": "Эквалайзер и звуковые волны (Op-Art Frequency Soundwave Ripples)",
+    "colors": [
+      "#FFE600",
+      "#480CA8"
+    ],
+    "paletteName": "Молниеносный Желтый & Кибер-Пурпур",
+    "heroDetail": "DJ-демон в массивных наушниках на шее, с рогами в форме зигзагообразных вспышек молний и солнечными очками-жалюзи (shutter shades).",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ЭЛЕКТРИЧЕСКИЙ ДЕМОН\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a high-energy DJ demon named \"Электрический Демон\" (\"Electric Demon\"). The silhouette features sharp branching lightning-bolt horns, large DJ headphones resting around the neck, retro shutter shades sunglasses cut out with glowing electric yellow slats, and crackling energy contours. The background is an optical illusion soundwave pattern with pulsating audio frequency ripples in lightning yellow (#FFE600) and deep cyber purple (#480CA8). Flat 2D vector art, sharp edges, screenprint poster style, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ELECTRIC DEMON\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a high-energy DJ demon named \"Электрический Демон\" (\"Electric Demon\"). The silhouette features sharp branching lightning-bolt horns, large DJ headphones resting around the neck, retro shutter shades sunglasses cut out with glowing electric yellow slats, and crackling energy contours. The background is an optical illusion soundwave pattern with pulsating audio frequency ripples in lightning yellow (#FFE600) and deep cyber purple (#480CA8). Flat 2D vector art, sharp edges, screenprint poster style, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a high-energy DJ demon named \"Электрический Демон\" (\"Electric Demon\"). The silhouette features sharp branching lightning-bolt horns, large DJ headphones resting around the neck, retro shutter shades sunglasses cut out with glowing electric yellow slats, and crackling energy contours. The background is an optical illusion soundwave pattern with pulsating audio frequency ripples in lightning yellow (#FFE600) and deep cyber purple (#480CA8). Flat 2D vector art, sharp edges, screenprint poster style, 1:1 square."
+  },
+  {
+    "id": "female_01",
+    "num": 1,
+    "gender": "female",
+    "name": "Маленькая Чертовка",
+    "enName": "Little She-Devil",
+    "nickRu": "МАЛЕНЬКАЯ ЧЕРТОВКА",
+    "nickEn": "LITTLE SHE-DEVIL",
+    "pattern": "Психоделические оптические полосы зебры (Warped Op-Art Zebra Waves)",
+    "colors": [
+      "#FF007F",
+      "#FF7700"
+    ],
+    "paletteName": "Горячий Розовый & Солнечный Оранж (Pure Vibe)",
+    "heroDetail": "Кокетливая чертовка в солнцезащитных очках кошачий глаз (cat-eye), приспущенных на нос, с высоким конским хвостом, маленькими рожками и накрашенными губками.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"МАЛЕНЬКАЯ ЧЕРТОВКА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cheeky seductive she-devil named \"Маленькая Чертовка\" (\"Little She-Devil\"). The silhouette has slender curving horns peeking from a sleek high ponytail hairstyle, retro cat-eye sunglasses pushed down the nose revealing glowing hot pink seductive feline eyes, and luscious glowing parted lips. The background is a psychedelic optical illusion pattern of warped zebra-curving liquid ripple bands in vibrant hot magenta pink (#FF007F) and radiant solar orange (#FF7700). Flat 2D vector, screenprint poster aesthetic, clean razor-sharp edges, no 3D, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"LITTLE SHE-DEVIL\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cheeky seductive she-devil named \"Маленькая Чертовка\" (\"Little She-Devil\"). The silhouette has slender curving horns peeking from a sleek high ponytail hairstyle, retro cat-eye sunglasses pushed down the nose revealing glowing hot pink seductive feline eyes, and luscious glowing parted lips. The background is a psychedelic optical illusion pattern of warped zebra-curving liquid ripple bands in vibrant hot magenta pink (#FF007F) and radiant solar orange (#FF7700). Flat 2D vector, screenprint poster aesthetic, clean razor-sharp edges, no 3D, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a cheeky seductive she-devil named \"Маленькая Чертовка\" (\"Little She-Devil\"). The silhouette has slender curving horns peeking from a sleek high ponytail hairstyle, retro cat-eye sunglasses pushed down the nose revealing glowing hot pink seductive feline eyes, and luscious glowing parted lips. The background is a psychedelic optical illusion pattern of warped zebra-curving liquid ripple bands in vibrant hot magenta pink (#FF007F) and radiant solar orange (#FF7700). Flat 2D vector, screenprint poster aesthetic, clean razor-sharp edges, no 3D, 1:1 square."
+  },
+  {
+    "id": "female_02",
+    "num": 2,
+    "gender": "female",
+    "name": "Дикая Кошка",
+    "enName": "Wild Cat",
+    "nickRu": "ДИКАЯ КОШКА",
+    "nickEn": "WILD CAT",
+    "pattern": "Оптические концентрические кошачьи глаза (Nested Hypnotic Cat Eyes)",
+    "colors": [
+      "#00F5D4",
+      "#F72585"
+    ],
+    "paletteName": "Неоновый Аквамарин & Электрическая Фуксия",
+    "heroDetail": "Женщина-кошка в облегающей полумаске с острыми ушками, держащая хлыст, перекинутый через плечо, со светящимися аквамариновыми миндалевидными глазами.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ДИКАЯ КОШКА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fierce feline heroine named \"Дикая Кошка\" (\"Wild Cat\"). The silhouette features tall sharp cat ears, an elegant domino cat-mask with cutout glowing electric-aquamarine slit eyes, delicate cheek whiskers, and the coiled silhouette of a bullwhip draped over one shoulder. The background is a psychedelic optical pattern of nested concentric almond cat-eye shapes pulsating outward in neon aquamarine (#00F5D4) and electric fuchsia (#F72585). Flat 2D vector art, bold clean lines, screenprint poster style, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"WILD CAT\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fierce feline heroine named \"Дикая Кошка\" (\"Wild Cat\"). The silhouette features tall sharp cat ears, an elegant domino cat-mask with cutout glowing electric-aquamarine slit eyes, delicate cheek whiskers, and the coiled silhouette of a bullwhip draped over one shoulder. The background is a psychedelic optical pattern of nested concentric almond cat-eye shapes pulsating outward in neon aquamarine (#00F5D4) and electric fuchsia (#F72585). Flat 2D vector art, bold clean lines, screenprint poster style, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fierce feline heroine named \"Дикая Кошка\" (\"Wild Cat\"). The silhouette features tall sharp cat ears, an elegant domino cat-mask with cutout glowing electric-aquamarine slit eyes, delicate cheek whiskers, and the coiled silhouette of a bullwhip draped over one shoulder. The background is a psychedelic optical pattern of nested concentric almond cat-eye shapes pulsating outward in neon aquamarine (#00F5D4) and electric fuchsia (#F72585). Flat 2D vector art, bold clean lines, screenprint poster style, 1:1 square."
+  },
+  {
+    "id": "female_03",
+    "num": 3,
+    "gender": "female",
+    "name": "Сладкая Ведьма",
+    "enName": "Sweet Witch",
+    "nickRu": "СЛАДКАЯ ВЕДЬМА",
+    "nickEn": "SWEET WITCH",
+    "pattern": "Спиральная паутина и фазы луны (Op-Art Cobweb & Moon Phases)",
+    "colors": [
+      "#7209B7",
+      "#CCFF00"
+    ],
+    "paletteName": "Кибер-Пурпур & Кислотный Лайм",
+    "heroDetail": "Современная готическая ведьма в широкополой остроконечной шляпе с прорезями для рожек, с сигаретой в мундштуке и светящимся третьим глазом.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"СЛАДКАЯ ВЕДЬМА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an enchanting goth witch named \"Сладкая Ведьма\" (\"Sweet Witch\"). The silhouette features an oversized pointed witch hat with curved horns poking through the brim, a vintage cigarette holder with a rising swirl of smoke, and three glowing acid lime-green eyes including a vertical third eye on the forehead. The background is a hypnotic optical illusion spiderweb spiral interlaced with curved crescent moon ripples in cyber purple (#7209B7) and acid neon lime (#CCFF00). Flat 2D vector, clean graphic contours, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SWEET WITCH\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an enchanting goth witch named \"Сладкая Ведьма\" (\"Sweet Witch\"). The silhouette features an oversized pointed witch hat with curved horns poking through the brim, a vintage cigarette holder with a rising swirl of smoke, and three glowing acid lime-green eyes including a vertical third eye on the forehead. The background is a hypnotic optical illusion spiderweb spiral interlaced with curved crescent moon ripples in cyber purple (#7209B7) and acid neon lime (#CCFF00). Flat 2D vector, clean graphic contours, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an enchanting goth witch named \"Сладкая Ведьма\" (\"Sweet Witch\"). The silhouette features an oversized pointed witch hat with curved horns poking through the brim, a vintage cigarette holder with a rising swirl of smoke, and three glowing acid lime-green eyes including a vertical third eye on the forehead. The background is a hypnotic optical illusion spiderweb spiral interlaced with curved crescent moon ripples in cyber purple (#7209B7) and acid neon lime (#CCFF00). Flat 2D vector, clean graphic contours, 1:1 square."
+  },
+  {
+    "id": "female_04",
+    "num": 4,
+    "gender": "female",
+    "name": "Грешная Нимфа",
+    "enName": "Sinful Nymph",
+    "nickRu": "ГРЕШНАЯ НИМФА",
+    "nickEn": "SINFUL NYMPH",
+    "pattern": "Психоделические ромашки и лепестки 60-х (60s Mod Psychedelic Daisy Floral)",
+    "colors": [
+      "#065A38",
+      "#FF5E7E"
+    ],
+    "paletteName": "Изумрудный Лес & Яркий Коралл",
+    "heroDetail": "Лесная нимфа с волосами из листьев монстеры, рожками из цветущих орхидей, открытыми плечами и сияющим цветочным знаком на лбу.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ГРЕШНАЯ НИМФА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a botanical siren named \"Грешная Нимфа\" (\"Sinful Nymph\"). The silhouette features exotic tropical monstera leaves framing her hair, twin orchid-bloom horns, bare elegant shoulders, glowing coral-pink petal-shaped eyes, and a glowing floral bindi jewel on her brow. The background is a 60s mod optical floral pattern with repeating hypnotic stylized daisy petals and liquid ripples in deep emerald forest green (#065A38) and bright coral pink (#FF5E7E). Flat vector screenprint art, razor-sharp edges, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SINFUL NYMPH\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a botanical siren named \"Грешная Нимфа\" (\"Sinful Nymph\"). The silhouette features exotic tropical monstera leaves framing her hair, twin orchid-bloom horns, bare elegant shoulders, glowing coral-pink petal-shaped eyes, and a glowing floral bindi jewel on her brow. The background is a 60s mod optical floral pattern with repeating hypnotic stylized daisy petals and liquid ripples in deep emerald forest green (#065A38) and bright coral pink (#FF5E7E). Flat vector screenprint art, razor-sharp edges, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a botanical siren named \"Грешная Нимфа\" (\"Sinful Nymph\"). The silhouette features exotic tropical monstera leaves framing her hair, twin orchid-bloom horns, bare elegant shoulders, glowing coral-pink petal-shaped eyes, and a glowing floral bindi jewel on her brow. The background is a 60s mod optical floral pattern with repeating hypnotic stylized daisy petals and liquid ripples in deep emerald forest green (#065A38) and bright coral pink (#FF5E7E). Flat vector screenprint art, razor-sharp edges, 1:1."
+  },
+  {
+    "id": "female_05",
+    "num": 5,
+    "gender": "female",
+    "name": "Ночная Бестия",
+    "enName": "Night Beast",
+    "nickRu": "НОЧНАЯ БЕСТИЯ",
+    "nickEn": "NIGHT BEAST",
+    "pattern": "Оптические концентрические волны крыльев (Nested Bat-Wing Wave Ripple)",
+    "colors": [
+      "#240046",
+      "#FF5400"
+    ],
+    "paletteName": "Глубокий Индиго & Пламенный Оранж",
+    "heroDetail": "Вампирша-суккуб с острыми ушками-крылышками, чокером с замочком-сердечком на шее и соблазнительными светящимися клыками.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"НОЧНАЯ БЕСТИЯ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dangerous succubus vixen named \"Ночная Бестия\" (\"Night Beast\"). The silhouette features sleek bat-wing ear fins framing her face, a tight gothic choker with a tiny heart-padlock silhouette, glowing blazing flame-orange sharp eyes, and two tiny glowing white fangs over luscious black lips. The background is a hypnotic optical illusion pattern of undulating scalloped bat-wing arches undulating like liquid waves in deep midnight purple (#240046) and radiant flame orange (#FF5400). Flat 2D vector, screenprint poster style, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"NIGHT BEAST\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dangerous succubus vixen named \"Ночная Бестия\" (\"Night Beast\"). The silhouette features sleek bat-wing ear fins framing her face, a tight gothic choker with a tiny heart-padlock silhouette, glowing blazing flame-orange sharp eyes, and two tiny glowing white fangs over luscious black lips. The background is a hypnotic optical illusion pattern of undulating scalloped bat-wing arches undulating like liquid waves in deep midnight purple (#240046) and radiant flame orange (#FF5400). Flat 2D vector, screenprint poster style, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a dangerous succubus vixen named \"Ночная Бестия\" (\"Night Beast\"). The silhouette features sleek bat-wing ear fins framing her face, a tight gothic choker with a tiny heart-padlock silhouette, glowing blazing flame-orange sharp eyes, and two tiny glowing white fangs over luscious black lips. The background is a hypnotic optical illusion pattern of undulating scalloped bat-wing arches undulating like liquid waves in deep midnight purple (#240046) and radiant flame orange (#FF5400). Flat 2D vector, screenprint poster style, 1:1."
+  },
+  {
+    "id": "female_06",
+    "num": 6,
+    "gender": "female",
+    "name": "Кибер Суккуб",
+    "enName": "Cyber Succubus",
+    "nickRu": "КИБЕР СУККУБ",
+    "nickEn": "CYBER SUCCUBUS",
+    "pattern": "Изометрическая кибер-сетка Трон (Warped Tron Cyber Wireframe Grid)",
+    "colors": [
+      "#00E5FF",
+      "#FF007F"
+    ],
+    "paletteName": "Неоновый Циан & Горячая Маджента",
+    "heroDetail": "Киборг-девушка с хвостом из оптоволоконных кабелей, неоновыми очками-визором и механическими полированными рожками.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"КИБЕР СУККУБ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a sci-fi android siren named \"Кибер Суккуб\" (\"Cyber Succubus\"). The silhouette features smooth curving chrome-like mechanical horns, a high-tech ponytail made of streaming fiber-optic cable silhouettes, and an ultra-sharp glowing hot magenta laser visor bar across the eyes with glowing neon lips below. The background is an optical illusion perspective wireframe grid warping into a digital cyber horizon in neon cyan (#00E5FF) and hot magenta pink (#FF007F). Flat 2D vector art, clean sharp contours, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"CYBER SUCCUBUS\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a sci-fi android siren named \"Кибер Суккуб\" (\"Cyber Succubus\"). The silhouette features smooth curving chrome-like mechanical horns, a high-tech ponytail made of streaming fiber-optic cable silhouettes, and an ultra-sharp glowing hot magenta laser visor bar across the eyes with glowing neon lips below. The background is an optical illusion perspective wireframe grid warping into a digital cyber horizon in neon cyan (#00E5FF) and hot magenta pink (#FF007F). Flat 2D vector art, clean sharp contours, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a sci-fi android siren named \"Кибер Суккуб\" (\"Cyber Succubus\"). The silhouette features smooth curving chrome-like mechanical horns, a high-tech ponytail made of streaming fiber-optic cable silhouettes, and an ultra-sharp glowing hot magenta laser visor bar across the eyes with glowing neon lips below. The background is an optical illusion perspective wireframe grid warping into a digital cyber horizon in neon cyan (#00E5FF) and hot magenta pink (#FF007F). Flat 2D vector art, clean sharp contours, 1:1 square."
+  },
+  {
+    "id": "female_07",
+    "num": 7,
+    "gender": "female",
+    "name": "Опасная Малышка",
+    "enName": "Dangerous Babe",
+    "nickRu": "ОПАСНАЯ МАЛЫШКА",
+    "nickEn": "DANGEROUS BABE",
+    "pattern": "Оптические гипнотические ромбы (Op-Art Harlequin Diamond Lattice)",
+    "colors": [
+      "#D00000",
+      "#03CEA4"
+    ],
+    "paletteName": "Кровавый Кардинал & Электрический Тил",
+    "heroDetail": "Французская гангстерша в берете, надетом набекрень между маленькими острыми рожками, пускающая кольцо дыма, с серьгой-булавкой в ухе.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ОПАСНАЯ МАЛЫШКА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a stylish mob doll named \"Опасная Малышка\" (\"Dangerous Babe\"). The silhouette features an artfully tilted Parisian beret with two needle-sharp mini devil horns poking out, a bob-haircut contour, a glowing floating smoke ring silhouette blown from the mouth, a safety-pin earring, and glowing electric teal feline eyes. The background is a hypnotic optical illusion harlequin diamond lattice warping in liquid perspective in blood cardinal red (#D00000) and electric teal (#03CEA4). Flat 2D graphic art, bold contrast, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"DANGEROUS BABE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a stylish mob doll named \"Опасная Малышка\" (\"Dangerous Babe\"). The silhouette features an artfully tilted Parisian beret with two needle-sharp mini devil horns poking out, a bob-haircut contour, a glowing floating smoke ring silhouette blown from the mouth, a safety-pin earring, and glowing electric teal feline eyes. The background is a hypnotic optical illusion harlequin diamond lattice warping in liquid perspective in blood cardinal red (#D00000) and electric teal (#03CEA4). Flat 2D graphic art, bold contrast, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a stylish mob doll named \"Опасная Малышка\" (\"Dangerous Babe\"). The silhouette features an artfully tilted Parisian beret with two needle-sharp mini devil horns poking out, a bob-haircut contour, a glowing floating smoke ring silhouette blown from the mouth, a safety-pin earring, and glowing electric teal feline eyes. The background is a hypnotic optical illusion harlequin diamond lattice warping in liquid perspective in blood cardinal red (#D00000) and electric teal (#03CEA4). Flat 2D graphic art, bold contrast, 1:1."
+  },
+  {
+    "id": "female_08",
+    "num": 8,
+    "gender": "female",
+    "name": "Ядовитая Мята",
+    "enName": "Poison Mint",
+    "nickRu": "ЯДОВИТАЯ МЯТА",
+    "nickEn": "POISON MINT",
+    "pattern": "Жидкие щупальца медузы и пузыри (Psychedelic Fluid Tentacle Spirals)",
+    "colors": [
+      "#00FFC6",
+      "#4A0E4E"
+    ],
+    "paletteName": "Светящаяся Мята & Темная Ежевика",
+    "heroDetail": "Глубоководная медуза-сирена с волосами в виде грациозно струящихся полупрозрачных щупалец с пузырьками воздуха и светящимися круглыми мятными глазами.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ЯДОВИТАЯ МЯТА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a toxic sea nymph named \"Ядовитая Мята\" (\"Poison Mint\"). The silhouette features a jellyfish-bell crown with long undulating tentacle-horns cascading around her slender neck, floating bubble silhouettes, and glowing luminous mint-aqua round hypnotic eyes with jet-black pupils. The background is a psychedelic fluid pattern of spiraling marine ribbon tentacles and liquid whirlpools in radiant mint aqua (#00FFC6) and deep blackberry purple (#4A0E4E). Flat vector screenprint art, razor-sharp edges, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"POISON MINT\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a toxic sea nymph named \"Ядовитая Мята\" (\"Poison Mint\"). The silhouette features a jellyfish-bell crown with long undulating tentacle-horns cascading around her slender neck, floating bubble silhouettes, and glowing luminous mint-aqua round hypnotic eyes with jet-black pupils. The background is a psychedelic fluid pattern of spiraling marine ribbon tentacles and liquid whirlpools in radiant mint aqua (#00FFC6) and deep blackberry purple (#4A0E4E). Flat vector screenprint art, razor-sharp edges, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a toxic sea nymph named \"Ядовитая Мята\" (\"Poison Mint\"). The silhouette features a jellyfish-bell crown with long undulating tentacle-horns cascading around her slender neck, floating bubble silhouettes, and glowing luminous mint-aqua round hypnotic eyes with jet-black pupils. The background is a psychedelic fluid pattern of spiraling marine ribbon tentacles and liquid whirlpools in radiant mint aqua (#00FFC6) and deep blackberry purple (#4A0E4E). Flat vector screenprint art, razor-sharp edges, 1:1 square."
+  },
+  {
+    "id": "female_09",
+    "num": 9,
+    "gender": "female",
+    "name": "Мятежная Душа",
+    "enName": "Rebel Soul",
+    "nickRu": "МЯТЕЖНАЯ ДУША",
+    "nickEn": "REBEL SOUL",
+    "pattern": "Анархистский оптический калейдоскоп (Op-Art Anarchy Starbursts)",
+    "colors": [
+      "#FF6000",
+      "#2B00FF"
+    ],
+    "paletteName": "Неоновый Мандарин & Ультрамарин",
+    "heroDetail": "Панк-бунтарка с двумя высокими торчащими хвостиками-рожками, пирсингом в носу и губе и светящейся молнией через правый глаз в стиле Дэвида Боуи.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"МЯТЕЖНАЯ ДУША\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a riot-girl punk named \"Мятежная Душа\" (\"Rebel Soul\"). The silhouette features spiked twin pigtails styled like devil horns, septum and lip piercing silhouettes, and a glowing neon tangerine-orange Aladdin Sane lightning-bolt slash running down across her right eye. The background is an optical illusion pattern of exploding angular jagged starbursts and zigzag ripples in blazing neon tangerine (#FF6000) and electric ultramarine blue (#2B00FF). Flat 2D vector, clean graphic contours, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"REBEL SOUL\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a riot-girl punk named \"Мятежная Душа\" (\"Rebel Soul\"). The silhouette features spiked twin pigtails styled like devil horns, septum and lip piercing silhouettes, and a glowing neon tangerine-orange Aladdin Sane lightning-bolt slash running down across her right eye. The background is an optical illusion pattern of exploding angular jagged starbursts and zigzag ripples in blazing neon tangerine (#FF6000) and electric ultramarine blue (#2B00FF). Flat 2D vector, clean graphic contours, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a riot-girl punk named \"Мятежная Душа\" (\"Rebel Soul\"). The silhouette features spiked twin pigtails styled like devil horns, septum and lip piercing silhouettes, and a glowing neon tangerine-orange Aladdin Sane lightning-bolt slash running down across her right eye. The background is an optical illusion pattern of exploding angular jagged starbursts and zigzag ripples in blazing neon tangerine (#FF6000) and electric ultramarine blue (#2B00FF). Flat 2D vector, clean graphic contours, 1:1."
+  },
+  {
+    "id": "female_10",
+    "num": 10,
+    "gender": "female",
+    "name": "Лунная Сирена",
+    "enName": "Lunar Siren",
+    "nickRu": "ЛУННАЯ СИРЕНА",
+    "nickEn": "LUNAR SIREN",
+    "pattern": "Оптические морские волны и ракушки (Op-Art Ocean Swells & Scallop Shells)",
+    "colors": [
+      "#0B1354",
+      "#00F2FE"
+    ],
+    "paletteName": "Океанский Индиго & Жемчужная Бирюза",
+    "heroDetail": "Океаническая сирена в наушниках из витых морских раковин, с короной из коралловых шипов, жемчужным колье и сияющей неоновой слезой.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ЛУННАЯ СИРЕНА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an ethereal oceanic siren named \"Лунная Сирена\" (\"Lunar Siren\"). The silhouette features Nautilus sea-shell headphone cups over the ears, a tiara crown of sharp coral spires, flowing sea-foam hair lines, glowing pearlescent cyan-turquoise almond eyes, and a glowing teardrop trail on her cheek. The background is an optical illusion pattern of undulating Japanese-inspired ocean swells and scalloped wave ripples in oceanic indigo navy (#0B1354) and luminous turquoise (#00F2FE). Flat 2D vector, high contrast, screenprint aesthetic, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"LUNAR SIREN\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an ethereal oceanic siren named \"Лунная Сирена\" (\"Lunar Siren\"). The silhouette features Nautilus sea-shell headphone cups over the ears, a tiara crown of sharp coral spires, flowing sea-foam hair lines, glowing pearlescent cyan-turquoise almond eyes, and a glowing teardrop trail on her cheek. The background is an optical illusion pattern of undulating Japanese-inspired ocean swells and scalloped wave ripples in oceanic indigo navy (#0B1354) and luminous turquoise (#00F2FE). Flat 2D vector, high contrast, screenprint aesthetic, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an ethereal oceanic siren named \"Лунная Сирена\" (\"Lunar Siren\"). The silhouette features Nautilus sea-shell headphone cups over the ears, a tiara crown of sharp coral spires, flowing sea-foam hair lines, glowing pearlescent cyan-turquoise almond eyes, and a glowing teardrop trail on her cheek. The background is an optical illusion pattern of undulating Japanese-inspired ocean swells and scalloped wave ripples in oceanic indigo navy (#0B1354) and luminous turquoise (#00F2FE). Flat 2D vector, high contrast, screenprint aesthetic, 1:1."
+  },
+  {
+    "id": "female_11",
+    "num": 11,
+    "gender": "female",
+    "name": "Бархатная Пантера",
+    "enName": "Velvet Panther",
+    "nickRu": "БАРХАТНАЯ ПАНТЕРА",
+    "nickEn": "VELVET PANTHER",
+    "pattern": "Искаженный леопардовый принт (Psychedelic Liquid Leopard Spots)",
+    "colors": [
+      "#3A0CA3",
+      "#FFB703"
+    ],
+    "paletteName": "Королевский Вельвет & Золотистый Янтарь",
+    "heroDetail": "Гламурная роковая львица в меховом пальто с высоким воротником, с длинным винтажным мундштуком, ушками пантеры и янтарным взглядом хищницы.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"БАРХАТНАЯ ПАНТЕРА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a luxury feline diva named \"Бархатная Пантера\" (\"Velvet Panther\"). The silhouette features sleek rounded panther ears, a glamorous high-volume fur coat collar around the shoulders, an extra-long cigarette holder silhouette angled upwards, and glowing warm golden-amber predator eyes with vertical slit pupils. The background is a psychedelic optical illusion pattern of melting, liquid-stretched leopard rosette spots in royal velvet purple (#3A0CA3) and warm golden amber (#FFB703). Flat 2D graphic art, bold screenprint style, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"VELVET PANTHER\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a luxury feline diva named \"Бархатная Пантера\" (\"Velvet Panther\"). The silhouette features sleek rounded panther ears, a glamorous high-volume fur coat collar around the shoulders, an extra-long cigarette holder silhouette angled upwards, and glowing warm golden-amber predator eyes with vertical slit pupils. The background is a psychedelic optical illusion pattern of melting, liquid-stretched leopard rosette spots in royal velvet purple (#3A0CA3) and warm golden amber (#FFB703). Flat 2D graphic art, bold screenprint style, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a luxury feline diva named \"Бархатная Пантера\" (\"Velvet Panther\"). The silhouette features sleek rounded panther ears, a glamorous high-volume fur coat collar around the shoulders, an extra-long cigarette holder silhouette angled upwards, and glowing warm golden-amber predator eyes with vertical slit pupils. The background is a psychedelic optical illusion pattern of melting, liquid-stretched leopard rosette spots in royal velvet purple (#3A0CA3) and warm golden amber (#FFB703). Flat 2D graphic art, bold screenprint style, 1:1."
+  },
+  {
+    "id": "female_12",
+    "num": 12,
+    "gender": "female",
+    "name": "Искренняя Дьяволица",
+    "enName": "Sincere She-Devil",
+    "nickRu": "ИСКРЕННЯЯ ДЬЯВОЛИЦА",
+    "nickEn": "SINCERE SHE-DEVIL",
+    "pattern": "Психоделический поп-арт калейдоскоп сердец (Trippy Pop-Art Heart Tunnel)",
+    "colors": [
+      "#FF006E",
+      "#FFBE0B"
+    ],
+    "paletteName": "Сияющая Фуксия & Солнечный Желтый",
+    "heroDetail": "Пин-ап дьяволица в очках-сердечках, с рожками, кокетливой родинкой на щеке, подмигивающим глазом и яркими пухлыми губами.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ИСКРЕННЯЯ ДЬЯВОЛИЦА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a retro pin-up she-devil named \"Искренняя Дьяволица\" (\"Sincere She-Devil\"). The silhouette features curving devil horns, heart-shaped sunglasses cut out with one glowing fuchsia winking eye and one wide open eye with long curved eyelashes, a beauty mark on the cheek, and smiling glowing lips. The background is a hypnotic op-art infinite heart tunnel of expanding concentric liquid hearts in radiant fuchsia pink (#FF006E) and sunny yellow (#FFBE0B). Bold flat 2D vector, clean edges, screenprint aesthetic, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SINCERE SHE-DEVIL\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a retro pin-up she-devil named \"Искренняя Дьяволица\" (\"Sincere She-Devil\"). The silhouette features curving devil horns, heart-shaped sunglasses cut out with one glowing fuchsia winking eye and one wide open eye with long curved eyelashes, a beauty mark on the cheek, and smiling glowing lips. The background is a hypnotic op-art infinite heart tunnel of expanding concentric liquid hearts in radiant fuchsia pink (#FF006E) and sunny yellow (#FFBE0B). Bold flat 2D vector, clean edges, screenprint aesthetic, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a retro pin-up she-devil named \"Искренняя Дьяволица\" (\"Sincere She-Devil\"). The silhouette features curving devil horns, heart-shaped sunglasses cut out with one glowing fuchsia winking eye and one wide open eye with long curved eyelashes, a beauty mark on the cheek, and smiling glowing lips. The background is a hypnotic op-art infinite heart tunnel of expanding concentric liquid hearts in radiant fuchsia pink (#FF006E) and sunny yellow (#FFBE0B). Bold flat 2D vector, clean edges, screenprint aesthetic, 1:1."
+  },
+  {
+    "id": "female_13",
+    "num": 13,
+    "gender": "female",
+    "name": "Розовая Фурия",
+    "enName": "Pink Fury",
+    "nickRu": "РОЗОВАЯ ФУРИЯ",
+    "nickEn": "PINK FURY",
+    "pattern": "Оптические языки пламени (Warped Optical Flame Tongues)",
+    "colors": [
+      "#FF1493",
+      "#00FF66"
+    ],
+    "paletteName": "Пылающий Неоновый Розовый & Яркий Салат",
+    "heroDetail": "Девушка-боец с волосами, вздымающимися как яростное пламя, боксерскими бинтами на поднятых кулаках и свирепым неоново-зеленым взглядом.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"РОЗОВАЯ ФУРИЯ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fierce martial-arts fury named \"Розовая Фурия\" (\"Pink Fury\"). The silhouette features dynamic swept-up hair shaped like roaring fire horns, boxing hand-wrap silhouettes raised near the jaw in a guard stance, and glowing electric neon lime-green fierce feline eyes. The background is an optical illusion pattern of interlocking, undulating liquid fire tongues and flame waves in shocking neon pink (#FF1493) and bright neon lime (#00FF66). Flat 2D vector art, razor-sharp clean edges, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PINK FURY\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fierce martial-arts fury named \"Розовая Фурия\" (\"Pink Fury\"). The silhouette features dynamic swept-up hair shaped like roaring fire horns, boxing hand-wrap silhouettes raised near the jaw in a guard stance, and glowing electric neon lime-green fierce feline eyes. The background is an optical illusion pattern of interlocking, undulating liquid fire tongues and flame waves in shocking neon pink (#FF1493) and bright neon lime (#00FF66). Flat 2D vector art, razor-sharp clean edges, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a fierce martial-arts fury named \"Розовая Фурия\" (\"Pink Fury\"). The silhouette features dynamic swept-up hair shaped like roaring fire horns, boxing hand-wrap silhouettes raised near the jaw in a guard stance, and glowing electric neon lime-green fierce feline eyes. The background is an optical illusion pattern of interlocking, undulating liquid fire tongues and flame waves in shocking neon pink (#FF1493) and bright neon lime (#00FF66). Flat 2D vector art, razor-sharp clean edges, 1:1 square."
+  },
+  {
+    "id": "female_14",
+    "num": 14,
+    "gender": "female",
+    "name": "Пылающая Медуза",
+    "enName": "Blazing Medusa",
+    "nickRu": "ПЫЛАЮЩАЯ МЕДУЗА",
+    "nickEn": "BLAZING MEDUSA",
+    "pattern": "Концентрический гипнотический змеиный лабиринт (Concentric Snake Scale Mazes)",
+    "colors": [
+      "#FF2A00",
+      "#00FFFF"
+    ],
+    "paletteName": "Огненный Алый & Неоновый Циан",
+    "heroDetail": "Медуза высокой моды в массивных солнцезащитных очках оверсайз, вокруг головы которой извиваются змеи в ожерельях со светящимися глазками.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ПЫЛАЮЩАЯ МЕДУЗА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a high-fashion gorgon named \"Пылающая Медуза\" (\"Blazing Medusa\"). The silhouette features six stylized serpents coiling elegantly like hair around her head with tiny glowing eyes on each snake head, wearing oversized square high-fashion sunglasses with glowing neon cyan lenses. The background is a psychedelic op-art pattern of liquid snake-skin scales and undulating circular labyrinth ripples in flaming red-orange (#FF2A00) and electric cyan (#00FFFF). Flat vector pop art, high contrast, clean edges, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"BLAZING MEDUSA\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a high-fashion gorgon named \"Пылающая Медуза\" (\"Blazing Medusa\"). The silhouette features six stylized serpents coiling elegantly like hair around her head with tiny glowing eyes on each snake head, wearing oversized square high-fashion sunglasses with glowing neon cyan lenses. The background is a psychedelic op-art pattern of liquid snake-skin scales and undulating circular labyrinth ripples in flaming red-orange (#FF2A00) and electric cyan (#00FFFF). Flat vector pop art, high contrast, clean edges, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a high-fashion gorgon named \"Пылающая Медуза\" (\"Blazing Medusa\"). The silhouette features six stylized serpents coiling elegantly like hair around her head with tiny glowing eyes on each snake head, wearing oversized square high-fashion sunglasses with glowing neon cyan lenses. The background is a psychedelic op-art pattern of liquid snake-skin scales and undulating circular labyrinth ripples in flaming red-orange (#FF2A00) and electric cyan (#00FFFF). Flat vector pop art, high contrast, clean edges, 1:1."
+  },
+  {
+    "id": "female_15",
+    "num": 15,
+    "gender": "female",
+    "name": "Космическая Киска",
+    "enName": "Cosmic Kitty",
+    "nickRu": "КОСМИЧЕСКАЯ КИСКА",
+    "nickEn": "COSMIC KITTY",
+    "pattern": "Психоделические кольца Сатурна и кометы (Saturn Rings & Comet Trails)",
+    "colors": [
+      "#8338EC",
+      "#FF66C4"
+    ],
+    "paletteName": "Космическая Лаванда & Бабл-Гам Розовый",
+    "heroDetail": "Космическая сейлор-девушка с прической оданго (два пучка в форме рожек), держащая волшебный жезл-полумесяц, с глазами-звездочками.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"КОСМИЧЕСКАЯ КИСКА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an anime cosmic magical girl named \"Космическая Киска\" (\"Cosmic Kitty\"). The silhouette features twin odango hair-buns shaped like cute devil horns with flowing ribbons, a magical crescent-moon wand silhouette held at the shoulder, and glowing bubblegum pink eyes with four-pointed sparkle star pupils. The background is an optical illusion pattern of tilted concentric planetary Saturn rings and streaming comet trails in cosmic lavender (#8338EC) and vibrant bubblegum pink (#FF66C4). Flat 2D vector art, clean sharp lines, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"COSMIC KITTY\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an anime cosmic magical girl named \"Космическая Киска\" (\"Cosmic Kitty\"). The silhouette features twin odango hair-buns shaped like cute devil horns with flowing ribbons, a magical crescent-moon wand silhouette held at the shoulder, and glowing bubblegum pink eyes with four-pointed sparkle star pupils. The background is an optical illusion pattern of tilted concentric planetary Saturn rings and streaming comet trails in cosmic lavender (#8338EC) and vibrant bubblegum pink (#FF66C4). Flat 2D vector art, clean sharp lines, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of an anime cosmic magical girl named \"Космическая Киска\" (\"Cosmic Kitty\"). The silhouette features twin odango hair-buns shaped like cute devil horns with flowing ribbons, a magical crescent-moon wand silhouette held at the shoulder, and glowing bubblegum pink eyes with four-pointed sparkle star pupils. The background is an optical illusion pattern of tilted concentric planetary Saturn rings and streaming comet trails in cosmic lavender (#8338EC) and vibrant bubblegum pink (#FF66C4). Flat 2D vector art, clean sharp lines, 1:1."
+  },
+  {
+    "id": "female_16",
+    "num": 16,
+    "gender": "female",
+    "name": "Чертовски Милая",
+    "enName": "Hellishly Sweet",
+    "nickRu": "ЧЕРТОВСКИ МИЛАЯ",
+    "nickEn": "HELLISHLY SWEET",
+    "pattern": "Оптические шахматные сердечки (Checkerboard Warped Hearts Grid)",
+    "colors": [
+      "#FF8C7A",
+      "#0B2545"
+    ],
+    "paletteName": "Коралловый Персик & Глубокий Индиго",
+    "heroDetail": "Готическая лолита с кружевным ободком горничной на голове, длинными ушками кролика (одно загнуто), чокером с колокольчиком и глазами-сердечками.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ЧЕРТОВСКИ МИЛАЯ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a goth-lolita bunny girl named \"Чертовски Милая\" (\"Hellishly Sweet\"). The silhouette features a frilly maid-headband silhouette with long rabbit ears (one upright, one folded), a collar with a tiny bell silhouette, tiny bat wings behind the shoulders, and glowing coral-peach heart-shaped eyes. The background is an optical illusion distortion grid of alternating checkerboard squares morphing into wavy hearts in warm coral peach (#FF8C7A) and deep dark indigo (#0B2545). Flat 2D graphic art, bold lines, screenprint poster style, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"HELLISHLY SWEET\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a goth-lolita bunny girl named \"Чертовски Милая\" (\"Hellishly Sweet\"). The silhouette features a frilly maid-headband silhouette with long rabbit ears (one upright, one folded), a collar with a tiny bell silhouette, tiny bat wings behind the shoulders, and glowing coral-peach heart-shaped eyes. The background is an optical illusion distortion grid of alternating checkerboard squares morphing into wavy hearts in warm coral peach (#FF8C7A) and deep dark indigo (#0B2545). Flat 2D graphic art, bold lines, screenprint poster style, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a goth-lolita bunny girl named \"Чертовски Милая\" (\"Hellishly Sweet\"). The silhouette features a frilly maid-headband silhouette with long rabbit ears (one upright, one folded), a collar with a tiny bell silhouette, tiny bat wings behind the shoulders, and glowing coral-peach heart-shaped eyes. The background is an optical illusion distortion grid of alternating checkerboard squares morphing into wavy hearts in warm coral peach (#FF8C7A) and deep dark indigo (#0B2545). Flat 2D graphic art, bold lines, screenprint poster style, 1:1."
+  },
+  {
+    "id": "female_17",
+    "num": 17,
+    "gender": "female",
+    "name": "Запретный Плод",
+    "enName": "Forbidden Fruit",
+    "nickRu": "ЗАПРЕТНЫЙ ПЛОД",
+    "nickEn": "FORBIDDEN FRUIT",
+    "pattern": "Оптические капли спелых яблок (Psychedelic Apple Slice Ripples)",
+    "colors": [
+      "#9A031E",
+      "#E36414"
+    ],
+    "paletteName": "Кровавая Вишня & Неоновый Шартрез",
+    "heroDetail": "Искусительница Ева, держащая в руке надкушенное светящееся яблоко, с запястьем, обвитым тонкой змейкой, и рожками-веточками с листком.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ЗАПРЕТНЫЙ ПЛОД\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of the Eden temptress named \"Запретный Плод\" (\"Forbidden Fruit\"). The silhouette features twig-like sharp devil horns with a stylized leaf silhouette, a slender arm raised holding a bite-taken glowing apple silhouette, a tiny serpent coiled around the wrist, and a glowing neon amber-chartreuse cyclops eye. The background is a psychedelic optical illusion pattern of concentric apple-slice cross-section contours and liquid ripples in deep blood cherry (#9A031E) and neon chartreuse amber (#E36414). Flat 2D vector, razor-sharp edges, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"FORBIDDEN FRUIT\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of the Eden temptress named \"Запретный Плод\" (\"Forbidden Fruit\"). The silhouette features twig-like sharp devil horns with a stylized leaf silhouette, a slender arm raised holding a bite-taken glowing apple silhouette, a tiny serpent coiled around the wrist, and a glowing neon amber-chartreuse cyclops eye. The background is a psychedelic optical illusion pattern of concentric apple-slice cross-section contours and liquid ripples in deep blood cherry (#9A031E) and neon chartreuse amber (#E36414). Flat 2D vector, razor-sharp edges, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of the Eden temptress named \"Запретный Плод\" (\"Forbidden Fruit\"). The silhouette features twig-like sharp devil horns with a stylized leaf silhouette, a slender arm raised holding a bite-taken glowing apple silhouette, a tiny serpent coiled around the wrist, and a glowing neon amber-chartreuse cyclops eye. The background is a psychedelic optical illusion pattern of concentric apple-slice cross-section contours and liquid ripples in deep blood cherry (#9A031E) and neon chartreuse amber (#E36414). Flat 2D vector, razor-sharp edges, 1:1."
+  },
+  {
+    "id": "female_18",
+    "num": 18,
+    "gender": "female",
+    "name": "Тайная Грешница",
+    "enName": "Secret Sinner",
+    "nickRu": "ТАЙНАЯ ГРЕШНИЦА",
+    "nickEn": "SECRET SINNER",
+    "pattern": "Готические витражные стрельчатые арки (Op-Art Gothic Cathedral Arches)",
+    "colors": [
+      "#560BAD",
+      "#F77F00"
+    ],
+    "paletteName": "Темный Плум & Розовое Золото",
+    "heroDetail": "Таинственная послушница в монашеском апостольнике (habite) с кружевной вуалью-сеткой, сквозь которую пронзают воздух длинные рога, и знаком луны.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ТАЙНАЯ ГРЕШНИЦА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a mysterious dark sister named \"Тайная Грешница\" (\"Secret Sinner\"). The silhouette features a flowing dark monastic cowl and fishnet veil contour revealing curved demonic horns, with a glowing warm rose-gold crescent moon sigil on her forehead above two seductive glowing slit eyes, and a rosary necklace silhouette. The background is a hypnotic optical illusion of nested pointed gothic cathedral window arches in dark plum purple (#560BAD) and warm rose gold (#F77F00). Flat 2D vector, clean graphic lines, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"SECRET SINNER\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a mysterious dark sister named \"Тайная Грешница\" (\"Secret Sinner\"). The silhouette features a flowing dark monastic cowl and fishnet veil contour revealing curved demonic horns, with a glowing warm rose-gold crescent moon sigil on her forehead above two seductive glowing slit eyes, and a rosary necklace silhouette. The background is a hypnotic optical illusion of nested pointed gothic cathedral window arches in dark plum purple (#560BAD) and warm rose gold (#F77F00). Flat 2D vector, clean graphic lines, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a mysterious dark sister named \"Тайная Грешница\" (\"Secret Sinner\"). The silhouette features a flowing dark monastic cowl and fishnet veil contour revealing curved demonic horns, with a glowing warm rose-gold crescent moon sigil on her forehead above two seductive glowing slit eyes, and a rosary necklace silhouette. The background is a hypnotic optical illusion of nested pointed gothic cathedral window arches in dark plum purple (#560BAD) and warm rose gold (#F77F00). Flat 2D vector, clean graphic lines, 1:1."
+  },
+  {
+    "id": "female_19",
+    "num": 19,
+    "gender": "female",
+    "name": "Дерзкая Искусительница",
+    "enName": "Bold Temptress",
+    "nickRu": "ДЕРЗКАЯ ИСКУСИТЕЛЬНИЦА",
+    "nickEn": "BOLD TEMPTRESS",
+    "pattern": "Венецианский веер и складки шелка (Op-Art Folding Fan & Ribbon Loops)",
+    "colors": [
+      "#BA181B",
+      "#FFD166"
+    ],
+    "paletteName": "Рубиновый Бархат & Яркое Золото",
+    "heroDetail": "Маскарадная дама, держащая в руке венецианскую маску с перьями на длинной палочке, с изящными спиральными рожками и открытой спиной.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ДЕРЗКАЯ ИСКУСИТЕЛЬНИЦА\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a masquerade temptress named \"Дерзкая Искусительница\" (\"Bold Temptress\"). The silhouette features ornate spiraling ram-like horns, an elegant neck and bare back contour, a hand holding a feathered masquerade mask on a stick up to the face, and glowing bright solar-gold eye slits inside the mask. The background is an optical illusion pattern of pleated folding fans and twisting satin ribbons in deep ruby velvet red (#BA181B) and bright solar gold (#FFD166). Flat 2D vector art, high contrast, 1:1.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"BOLD TEMPTRESS\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a masquerade temptress named \"Дерзкая Искусительница\" (\"Bold Temptress\"). The silhouette features ornate spiraling ram-like horns, an elegant neck and bare back contour, a hand holding a feathered masquerade mask on a stick up to the face, and glowing bright solar-gold eye slits inside the mask. The background is an optical illusion pattern of pleated folding fans and twisting satin ribbons in deep ruby velvet red (#BA181B) and bright solar gold (#FFD166). Flat 2D vector art, high contrast, 1:1.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a masquerade temptress named \"Дерзкая Искусительница\" (\"Bold Temptress\"). The silhouette features ornate spiraling ram-like horns, an elegant neck and bare back contour, a hand holding a feathered masquerade mask on a stick up to the face, and glowing bright solar-gold eye slits inside the mask. The background is an optical illusion pattern of pleated folding fans and twisting satin ribbons in deep ruby velvet red (#BA181B) and bright solar gold (#FFD166). Flat 2D vector art, high contrast, 1:1."
+  },
+  {
+    "id": "female_20",
+    "num": 20,
+    "gender": "female",
+    "name": "Огненная Бестия",
+    "enName": "Fiery Vixen",
+    "nickRu": "ОГНЕННАЯ БЕСТИЯ",
+    "nickEn": "FIERY VIXEN",
+    "pattern": "Японские волны Сейгайха и огненные искры (Op-Art Seigaiha Waves & Fire Embers)",
+    "colors": [
+      "#FF3C00",
+      "#B5179E"
+    ],
+    "paletteName": "Пламенный Оранж & Электрическая Маджента",
+    "heroDetail": "Кицунэ в кимоно со спущенным плечом, с высокими лисьими ушками, заколками канзаши в виде огненных рожек, держащая раскрытый веер у губ.",
+    "prompt": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"ОГНЕННАЯ БЕСТИЯ\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a mythical kitsune geisha named \"Огненная Бестия\" (\"Fiery Vixen\"). The silhouette features tall pointed fox ears, traditional kanzashi hairpins shaped like flame horns, an off-shoulder kimono neckline, a folding fan silhouette held coyly covering the mouth, and glowing electric magenta fox eyes. The background is an optical illusion pattern of overlapping Japanese Seigaiha cresting wave fans interlaced with fire sparks in flaming orange-red (#FF3C00) and electric magenta (#B5179E). Flat 2D vector, clean graphic edges, 1:1 square.",
+    "promptEn": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"FIERY VIXEN\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a mythical kitsune geisha named \"Огненная Бестия\" (\"Fiery Vixen\"). The silhouette features tall pointed fox ears, traditional kanzashi hairpins shaped like flame horns, an off-shoulder kimono neckline, a folding fan silhouette held coyly covering the mouth, and glowing electric magenta fox eyes. The background is an optical illusion pattern of overlapping Japanese Seigaiha cresting wave fans interlaced with fire sparks in flaming orange-red (#FF3C00) and electric magenta (#B5179E). Flat 2D vector, clean graphic edges, 1:1 square.",
+    "promptPure": "In the iconic 2D flat vector graphic style of Pure dating app logo. Prominently at the top center, the bold black hand-drawn typography text \"PURE\" is arched across the top in chunky, rounded, playful comic marker letters. Centered below is a solid pitch-black silhouette of a mythical kitsune geisha named \"Огненная Бестия\" (\"Fiery Vixen\"). The silhouette features tall pointed fox ears, traditional kanzashi hairpins shaped like flame horns, an off-shoulder kimono neckline, a folding fan silhouette held coyly covering the mouth, and glowing electric magenta fox eyes. The background is an optical illusion pattern of overlapping Japanese Seigaiha cresting wave fans interlaced with fire sparks in flaming orange-red (#FF3C00) and electric magenta (#B5179E). Flat 2D vector, clean graphic edges, 1:1 square."
+  }
+];
+
+    let currentFilter = 'all';
+    let textMode = 'ru'; // 'ru', 'en', 'pure'
+
+    function renderCards(filter = 'all', searchQuery = '') {
+      const grid = document.getElementById('promptsGrid');
+      grid.innerHTML = '';
+
+      const query = searchQuery.trim().toLowerCase();
+
+      const filtered = AVATARS_DATA.filter(item => {
+        const matchesGender = filter === 'all' || item.gender === filter;
+        const matchesSearch = !query || 
+          item.name.toLowerCase().includes(query) ||
+          item.enName.toLowerCase().includes(query) ||
+          item.pattern.toLowerCase().includes(query) ||
+          item.heroDetail.toLowerCase().includes(query) ||
+          item.paletteName.toLowerCase().includes(query);
+        return matchesGender && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+            <p style="font-size: 1.1rem; margin-bottom: 8px;">Ничего не найдено по запросу "${searchQuery}"</p>
+            <p style="font-size: 0.9rem;">Попробуйте сбросить фильтры или изменить поисковый запрос.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `card ${item.gender}`;
+        
+        const badgeBg = `background: repeating-radial-gradient(circle, ${item.colors[0]} 0, ${item.colors[0]} 4px, ${item.colors[1]} 6px, ${item.colors[1]} 10px);`;
+
+        let currentPrompt = item.prompt; // 'ru'
+        let currentTextLabel = item.nickRu;
+        if (textMode === 'en') {
+          currentPrompt = item.promptEn;
+          currentTextLabel = item.nickEn;
+        } else if (textMode === 'pure') {
+          currentPrompt = item.promptPure;
+          currentTextLabel = "PURE";
+        }
+
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="avatar-preview-badge" style="${badgeBg}">
+                #${String(item.num).padStart(2, '0')}
+              </div>
+              <div>
+                <div class="card-name">${item.name}</div>
+                <div class="card-subname">${item.enName} • #${item.num}</div>
+              </div>
+            </div>
+            <span class="gender-pill ${item.gender}">
+              ${item.gender === 'male' ? '👨 Мужской' : '👩 Женский'}
+            </span>
+          </div>
+
+          <div class="top-text-tag">
+            <span style="color:#a0a4bd;font-size:0.75rem;">Текст вверху аватарки:</span>
+            <strong>"${currentTextLabel}"</strong>
+          </div>
+
+          <div class="meta-box">
+            <div class="meta-item">
+              <strong>Узор фона:</strong>
+              <span style="color:#fff;font-weight:600;">${item.pattern}</span>
+            </div>
+            <div class="meta-item">
+              <strong>Палитра:</strong>
+              <span>
+                <span class="palette-swatches">
+                  <span class="swatch" style="background: ${item.colors[0]};"></span>
+                  <span class="swatch" style="background: ${item.colors[1]};"></span>
+                </span>
+                ${item.paletteName}
+              </span>
+            </div>
+            <div class="meta-item">
+              <strong>Герой и поза:</strong>
+              <span style="color:#d1d5db;">${item.heroDetail}</span>
+            </div>
+          </div>
+
+          <div class="prompt-box" id="pbox_${item.id}" title="Кликните, чтобы выделить весь текст">${escapeHtml(currentPrompt)}</div>
+
+          <div class="card-actions">
+            <button class="btn-copy-main" onclick="copyCurrentPrompt('${item.id}', '${escapeJs(item.name)}')">
+              <svg style="width:16px;height:16px;fill:currentColor" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              <span>Скопировать для Flow</span>
+            </button>
+            <button class="btn-icon" title="Скопировать английский вариант имени" onclick="copyEnPrompt('${item.id}', '${escapeJs(item.name)}')">
+              <span style="font-weight:700;font-size:0.75rem;">EN</span>
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function setTextMode(mode) {
+      textMode = mode;
+      document.getElementById('btnModeRu').classList.toggle('active', mode === 'ru');
+      document.getElementById('btnModeEn').classList.toggle('active', mode === 'en');
+      document.getElementById('btnModePure').classList.toggle('active', mode === 'pure');
+      const searchVal = document.getElementById('searchInput').value;
+      renderCards(currentFilter, searchVal);
+      if (mode === 'ru') showToast('Включены русские тайные имена в промптах');
+      else if (mode === 'en') showToast('Включены английские тайные имена в промптах');
+      else showToast('Включено слово "PURE"');
+    }
+
+    function filterGender(gender) {
+      currentFilter = gender;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      const searchVal = document.getElementById('searchInput').value;
+      renderCards(gender, searchVal);
+    }
+
+    function handleSearch() {
+      const searchVal = document.getElementById('searchInput').value;
+      renderCards(currentFilter, searchVal);
+    }
+
+    function copyToClipboard(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg);
+        }).catch(() => {
+          fallbackCopy(text, successMsg);
+        });
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
+
+    function fallbackCopy(text, successMsg) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (err) {
+        alert("Выделите текст вручную.");
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function copyCurrentPrompt(id, name) {
+      const item = AVATARS_DATA.find(a => a.id === id);
+      if (item) {
+        let text = item.prompt;
+        if (textMode === 'en') text = item.promptEn;
+        else if (textMode === 'pure') text = item.promptPure;
+        copyToClipboard(text, `Промпт для «${name}» скопирован!`);
+      }
+    }
+
+    function copyEnPrompt(id, name) {
+      const item = AVATARS_DATA.find(a => a.id === id);
+      if (item) {
+        copyToClipboard(item.promptEn, `Скопирован English-промпт «${item.enName}»!`);
+      }
+    }
+
+    function copyNegativePrompt() {
+      copyToClipboard(NEGATIVE_PROMPT, "Negative Prompt скопирован!");
+    }
+
+    function copyFontGuideline() {
+      copyToClipboard(FONT_GUIDELINE, "Описание шрифта скопировано!");
+    }
+
+    function copyBatch(gender) {
+      const items = AVATARS_DATA.filter(a => a.gender === gender);
+      const title = gender === 'male' ? 'МУЖСКИЕ АВАТАРКИ (20)' : 'ЖЕНСКИЕ АВАТАРКИ (20)';
+      
+      let text = `====================================================\n`;
+      text += `PURE MATCH — ${title} С ТАЙНЫМИ ИМЕНАМИ ДЛЯ NANO BANANA PRO / FLOW\n`;
+      text += `Negative Prompt: ${NEGATIVE_PROMPT}\n`;
+      text += `====================================================\n\n`;
+
+      items.forEach((item) => {
+        let pr = item.prompt;
+        if (textMode === 'en') pr = item.promptEn;
+        else if (textMode === 'pure') pr = item.promptPure;
+
+        text += `[#${item.num}] ${item.name} (${item.enName})\n`;
+        text += `Тайное имя вверху: "${textMode === 'en' ? item.nickEn : item.nickRu}"\n`;
+        text += `Узор фона: ${item.pattern}\n`;
+        text += `Палитра: ${item.paletteName} (${item.colors.join(' & ')})\n`;
+        text += `Герой: ${item.heroDetail}\n`;
+        text += `PROMPT:\n${pr}\n\n`;
+      });
+
+      copyToClipboard(text, `Все 20 ${gender === 'male' ? 'мужских' : 'женских'} промптов скопированы!`);
+    }
+
+    function exportPromptsTxt() {
+      let text = `===============================================================\n`;
+      text += `PURE MATCH — 40 ПРОМПТОВ С ТАЙНЫМИ ИМЕНАМИ ДЛЯ FLOW / NANO BANANA PRO\n`;
+      text += `===============================================================\n\n`;
+      text += `NEGATIVE PROMPT:\n${NEGATIVE_PROMPT}\n\n`;
+
+      text += `---------------------------------------------------------------\n`;
+      text += `МУЖСКИЕ АВАТАРКИ (20 ТАЙНЫХ ИМЕН И УНИКАЛЬНЫХ УЗОРОВ):\n`;
+      text += `---------------------------------------------------------------\n\n`;
+      AVATARS_DATA.filter(a => a.gender === 'male').forEach(item => {
+        let pr = item.prompt;
+        if (textMode === 'en') pr = item.promptEn;
+        else if (textMode === 'pure') pr = item.promptPure;
+
+        text += `[#${item.num}] ${item.name} (${item.enName})\n`;
+        text += `Тайное имя вверху: "${textMode === 'en' ? item.nickEn : item.nickRu}"\n`;
+        text += `Узор фона: ${item.pattern}\n`;
+        text += `Палитра: ${item.paletteName} (${item.colors.join(' & ')})\n`;
+        text += `Детали героя: ${item.heroDetail}\n`;
+        text += `PROMPT:\n${pr}\n\n`;
+      });
+
+      text += `---------------------------------------------------------------\n`;
+      text += `ЖЕНСКИЕ АВАТАРКИ (20 ТАЙНЫХ ИМЕН И УНИКАЛЬНЫХ УЗОРОВ):\n`;
+      text += `---------------------------------------------------------------\n\n`;
+      AVATARS_DATA.filter(a => a.gender === 'female').forEach(item => {
+        let pr = item.prompt;
+        if (textMode === 'en') pr = item.promptEn;
+        else if (textMode === 'pure') pr = item.promptPure;
+
+        text += `[#${item.num}] ${item.name} (${item.enName})\n`;
+        text += `Тайное имя вверху: "${textMode === 'en' ? item.nickEn : item.nickRu}"\n`;
+        text += `Узор фона: ${item.pattern}\n`;
+        text += `Палитра: ${item.paletteName} (${item.colors.join(' & ')})\n`;
+        text += `Детали героя: ${item.heroDetail}\n`;
+        text += `PROMPT:\n${pr}\n\n`;
+      });
+
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pure_avatar_secret_names_prompts.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("Файл pure_avatar_secret_names_prompts.txt скачан!");
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toastText');
+      text.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2600);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function escapeJs(str) {
+      return str.replace(/'/g, "\\'");
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>
