@@ -237,13 +237,22 @@ class MatchingService:
                         # Ответ придет через 25-70 сек, сейчас пользователь листает дальше
                         has_back_like = False
                     else:
-                        fake_reaction = Reaction(
-                            from_user_id=target_user_id,
-                            to_user_id=from_user.id,
-                            reaction_type="like",
-                            created_at=utc_now()
+                        fake_reaction_stmt = select(Reaction).where(
+                            Reaction.from_user_id == target_user_id,
+                            Reaction.to_user_id == from_user.id
                         )
-                        session.add(fake_reaction)
+                        fake_reaction = (await session.execute(fake_reaction_stmt)).scalar_one_or_none()
+                        if fake_reaction:
+                            fake_reaction.reaction_type = "like"
+                            fake_reaction.created_at = utc_now()
+                        else:
+                            fake_reaction = Reaction(
+                                from_user_id=target_user_id,
+                                to_user_id=from_user.id,
+                                reaction_type="like",
+                                created_at=utc_now()
+                            )
+                            session.add(fake_reaction)
                         has_back_like = True
 
             if has_back_like:

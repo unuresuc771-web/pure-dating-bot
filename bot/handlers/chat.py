@@ -1,6 +1,8 @@
 import logging
 import asyncio
 from typing import Optional
+from datetime import datetime, timezone
+from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram import Router, F, Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -40,31 +42,79 @@ async def auto_delete_secret(
         except Exception:
             pass
 
-@router.message(F.text.in_({"💬 Чаты", "💬 Мои чаты", "◀️ Все чаты"}))
+async def render_chats_list(target, user: User, session: AsyncSession):
+    chats = await ChatService.get_user_active_sessions(session, user.id)
+    if not chats:
+        text = (
+            "💬 <b>У вас пока нет активных диалогов.</b>\n\n"
+            "Ставьте взаимные лайки в поиске, чтобы начать общение!"
+        )
+        if isinstance(target, Message):
+            await target.answer(text, reply_markup=get_main_keyboard(), parse_mode="HTML")
+        else:
+            await target.message.answer(text, reply_markup=get_main_keyboard(), parse_mode="HTML")
+        return
+
+    lines = [f"💬 <b>Ваши активные диалоги ({len(chats)}):</b>\n"]
+    chats_data = []
+    for i, (c, partner) in enumerate(chats, 1):
+        last_msg = await ChatService.get_last_message_for_session(session, c.id)
+        time_str = ""
+        if last_msg:
+            raw_text = last_msg.text or ("📷 Фото" if last_msg.media_type != "text" else "...")
+            snippet = f"<i>«{raw_text[:35]}»</i>"
+            diff = utc_now() - (last_msg.created_at.replace(tzinfo=timezone.utc) if last_msg.created_at.tzinfo is None else last_msg.created_at)
+            mins = int(diff.total_seconds() // 60)
+            if mins < 1:
+                time_str = "только что"
+            elif mins < 60:
+                time_str = f"{mins} мин назад"
+            elif mins < 1440:
+                time_str = f"{mins // 60} ч назад"
+            else:
+                time_str = f"{mins // 1440} д назад"
+        else:
+            snippet = "<i>(диалог только начат)</i>"
+
+        is_couple = (partner.gender == "couple")
+        g_icon = "👥" if is_couple else ("👨" if partner.gender == "male" else "👩")
+        age_disp = partner.couple_age if (is_couple and partner.couple_age) else str(partner.age)
+        time_part = f" • <i>{time_str}</i>" if time_str else ""
+        lines.append(f"{i}️⃣ {g_icon} <b>{partner.first_name}</b>, {age_disp} ({partner.city}){time_part}\n   {snippet}\n")
+        chats_data.append({
+            "session_id": c.id,
+            "name": partner.first_name,
+            "gender_icon": g_icon,
+            "num": i
+        })
+
+    lines.append("<i>Выберите диалог кнопкой ниже для перехода:</i>")
+    kb = get_user_chats_keyboard(chats_data)
+    if isinstance(target, Message):
+        await target.answer("\n".join(lines), reply_markup=kb, parse_mode="HTML")
+    else:
+        await target.message.answer("\n".join(lines), reply_markup=kb, parse_mode="HTML")
+
+@router.message(F.text.in_({"💬 Чаты", "💬 Мои чаты", "◀️ Все чаты", "💬 Все диалоги"}))
 async def show_user_chats(message: Message, state: FSMContext):
     await state.clear()
     async with async_session_maker() as session:
         user = await UserService.get_by_telegram_id(session, message.from_user.id)
         if not user:
             return
-
         await UserService.set_active_chat(session, user.id, None)
+        await render_chats_list(message, user, session)
 
-        chats = await ChatService.get_user_active_sessions(session, user.id)
-        if not chats:
-            await message.answer(
-                "💬 <b>У вас пока нет активных диалогов.</b>\n\n"
-                "Ставьте взаимные лайки в поиске, чтобы начать общение!",
-                reply_markup=get_main_keyboard(),
-                parse_mode="HTML"
-            )
+@router.callback_query(F.data == "chat_list_all")
+async def cb_show_user_chats(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    await state.clear()
+    async with async_session_maker() as session:
+        user = await UserService.get_by_telegram_id(session, call.from_user.id)
+        if not user:
             return
-
-        await message.answer(
-            f"💬 <b>Активные диалоги ({len(chats)}):</b>\nВыберите собеседника:",
-            reply_markup=get_user_chats_keyboard(chats),
-            parse_mode="HTML"
-        )
+        await UserService.set_active_chat(session, user.id, None)
+        await render_chats_list(call, user, session)
 
 @router.callback_query(F.data.startswith("open_chat:"))
 async def cb_open_chat(call: CallbackQuery, state: FSMContext):
@@ -95,29 +145,84 @@ async def cb_open_chat(call: CallbackQuery, state: FSMContext):
         except Exception:
             pass
 
-        # Полный zero digital footprint: никаких цитирований истории и напоминаний
+        is_couple = (partner.gender == "couple")
+        g_icon = "👥" if is_couple else ("👨" if partner.gender == "male" else "👩")
+        age_disp = partner.couple_age if (is_couple and partner.couple_age) else str(partner.age)
+        bio_part = f"\n📝 <i>«{partner.bio}»</i>" if partner.bio else ""
+
+        recent_msgs = await ChatService.get_recent_messages(session, chat.id, limit=5)
+        history_part = ""
+        if recent_msgs:
+            history_lines = ["\n📜 <b>Последние сообщения:</b>"]
+            for m in recent_msgs[-4:]:
+                sender_label = "Вы" if m.sender_id == user.id else partner.first_name
+                txt = m.text or ("📷 Фото" if m.media_type != "text" else "...")
+                history_lines.append(f"• <b>{sender_label}:</b> {txt}")
+            history_part = "\n" + "\n".join(history_lines)
+
+        chat_header = (
+            f"💬 <b>Диалог с {partner.first_name}</b>\n"
+            f"{g_icon} <b>{partner.first_name}</b>, {age_disp} ({partner.city})"
+            f"{bio_part}"
+            f"{history_part}\n\n"
+            f"🔒 <i>Сообщения защищены. Вы можете сжечь переписку в любой момент.</i>"
+        )
+
+        from bot.keyboards.inline import get_in_chat_actions_keyboard
         await call.message.answer(
-            f"💬 <b>Чат с {partner.first_name}</b>",
+            chat_header,
+            reply_markup=get_in_chat_actions_keyboard(chat.id, partner.id),
+            parse_mode="HTML"
+        )
+        # Устанавливаем нижнюю клавиатуру управления чатом
+        await call.message.answer(
+            "⌨️ <i>Вы в режиме диалога. Введите сообщение собеседнику:</i>",
             reply_markup=get_in_chat_reply_keyboard(),
             parse_mode="HTML"
         )
 
         # Если собеседник виртуальный и сообщений еще нет - отправляем приветствие
-        if partner.is_fake:
-            recent_msgs = await ChatService.get_recent_messages(session, chat.id, limit=1)
-            if not recent_msgs:
-                from bot.services.virtual_chat_engine import VirtualChatEngine
-                asyncio.create_task(
-                    VirtualChatEngine.process_virtual_reply(
-                        bot=call.bot,
-                        session_id=chat.id,
-                        real_user=user,
-                        fake_user=partner,
-                        user_message_text="[Начало диалога]"
-                    )
+        if partner.is_fake and not recent_msgs:
+            from bot.services.virtual_chat_engine import VirtualChatEngine
+            asyncio.create_task(
+                VirtualChatEngine.process_virtual_reply(
+                    bot=call.bot,
+                    session_id=chat.id,
+                    real_user=user,
+                    fake_user=partner,
+                    user_message_text="[Начало диалога]"
                 )
+            )
 
-@router.message(F.text.in_({"🚪 В меню", "🚪 Выйти в меню (свернуть)", "🚪 Выйти в меню", "🚪 Выйти"}))
+@router.callback_query(F.data.startswith("chat_view_profile:"))
+async def cb_chat_view_profile(call: CallbackQuery, bot: Bot):
+    await call.answer()
+    partner_id = int(call.data.split(":")[1])
+    async with async_session_maker() as session:
+        partner = await UserService.get_by_id(session, partner_id)
+        if partner:
+            from bot.services.avatar_cache import AvatarCacheService
+            cap = UserService.format_caption(partner, is_owner=False)
+            await AvatarCacheService.send_avatar_photo(
+                bot=bot,
+                chat_id=call.from_user.id,
+                avatar_path=partner.avatar_path,
+                is_custom_photo=partner.is_custom_photo,
+                caption=cap
+            )
+
+@router.callback_query(F.data.startswith("ask_burn:"))
+async def cb_ask_burn(call: CallbackQuery):
+    await call.answer()
+    session_id = int(call.data.split(":")[1])
+    await call.message.answer(
+        "⚠️ <b>Вы уверены, что хотите сжечь диалог?</b>\n\n"
+        "Вся переписка и файлы будут безвозвратно удалены у обоих собеседников.",
+        reply_markup=get_confirm_burn_keyboard(session_id),
+        parse_mode="HTML"
+    )
+
+@router.message(F.text.in_({"🚪 В меню", "🚪 Выйти в меню (свернуть)", "🚪 Выйти в меню", "🚪 Выйти", "🚪 В главное меню"}))
 async def action_exit_chat(message: Message, state: FSMContext):
     await state.clear()
     async with async_session_maker() as session:
@@ -131,7 +236,7 @@ async def action_exit_chat(message: Message, state: FSMContext):
         parse_mode="HTML"
     )
 
-@router.message(F.text.in_({"🔥 Завершить чат", "🔥 Завершить и удалить чат"}))
+@router.message(F.text.in_({"🔥 Завершить чат", "🔥 Завершить и удалить чат", "🔥 Сжечь чат", "🔥 Сжечь переписку"}))
 async def msg_burn_prompt(message: Message, state: FSMContext):
     data = await state.get_data()
     session_id = data.get("session_id")
@@ -228,7 +333,7 @@ async def cb_set_secret_timer(call: CallbackQuery, bot: Bot):
             return
 
         partner_in_chat = (partner.active_chat_id == chat.id)
-        reply_markup = None if partner_in_chat else get_new_message_alert_keyboard(chat.id)
+        reply_markup = None if partner_in_chat else get_new_message_alert_keyboard(chat.id, partner_name=sender.first_name)
 
         if duration == 0:
             # Обычное фото
@@ -411,7 +516,7 @@ async def handle_in_chat_relay(message: Message, bot: Bot, state: FSMContext):
             return
 
         partner_in_chat = (partner.active_chat_id == chat.id)
-        reply_markup = None if partner_in_chat else get_new_message_alert_keyboard(chat.id)
+        reply_markup = None if partner_in_chat else get_new_message_alert_keyboard(chat.id, partner_name=user.first_name)
 
         # Если отправлена фотография — предлагаем таймер скрытого фото
         if message.photo:

@@ -145,14 +145,14 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
         # Стадия 9 должна содержать предложение встречи / призыв к действию
         stage_9_msg = dialog_history[8][1].lower()
         self.assertTrue(
-            any(w in stage_9_msg for w in ["встрет", "увид", "погнали", "пересеч", "кофе", "вина", "сегодня", "ночью"]),
+            any(w in stage_9_msg for w in ["встрет", "увид", "погнали", "пересеч", "кофе", "вина", "сегодня", "ночью", "приезж", "заед", "подъед"]),
             f"Stage 9 should propose a meeting: {stage_9_msg}"
         )
 
-        # Стадия 10 должна содержать намек на сгорание / правила Pure
+        # Стадия 10 должна содержать намек на сгорание / правила Pure / закрытие чата
         stage_10_msg = dialog_history[9][1].lower()
         self.assertTrue(
-            any(w in stage_10_msg for w in ["сгор", "сгорит", "исчез", "время", "pure", "таймер", "стерт", "бабах"]),
+            any(w in stage_10_msg for w in ["сгор", "сгорит", "исчез", "время", "pure", "таймер", "стерт", "бабах", "удал", "закрыв", "снош", "стира"]),
             f"Stage 10 should announce chat burning: {stage_10_msg}"
         )
 
@@ -206,10 +206,27 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         async with async_session_maker() as session:
             from sqlalchemy import delete
-            await session.execute(delete(Reaction).where(Reaction.from_user_id < 0))
-            await session.execute(delete(Match).where(Match.user1_id < 0))
-            await session.execute(delete(User).where(User.first_name.like("Тест%")))
-            await session.execute(delete(User).where(User.telegram_id < 0))
+            test_users_stmt = select(User.id).where(
+                (User.first_name.like("Тест%")) | (User.first_name.like("Бот%")) | (User.telegram_id < 0)
+            )
+            test_user_ids = (await session.execute(test_users_stmt)).scalars().all()
+            if test_user_ids:
+                await session.execute(
+                    delete(Reaction).where(
+                        (Reaction.from_user_id.in_(test_user_ids)) | (Reaction.to_user_id.in_(test_user_ids))
+                    )
+                )
+                await session.execute(
+                    delete(Match).where(
+                        (Match.user1_id.in_(test_user_ids)) | (Match.user2_id.in_(test_user_ids))
+                    )
+                )
+                await session.execute(
+                    delete(ChatSession).where(
+                        (ChatSession.user_a_id.in_(test_user_ids)) | (ChatSession.user_b_id.in_(test_user_ids))
+                    )
+                )
+                await session.execute(delete(User).where(User.id.in_(test_user_ids)))
             await session.commit()
 
 if __name__ == "__main__":

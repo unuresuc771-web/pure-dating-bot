@@ -102,6 +102,20 @@ class ChatService:
         return res.scalars().all()
 
     @staticmethod
+    async def get_last_message_for_session(
+        session: AsyncSession,
+        session_id: int
+    ) -> Optional[ChatMessage]:
+        stmt = (
+            select(ChatMessage)
+            .where(ChatMessage.session_id == session_id)
+            .order_by(ChatMessage.created_at.desc())
+            .limit(1)
+        )
+        res = await session.execute(stmt)
+        return res.scalar_one_or_none()
+
+    @staticmethod
     async def burn_and_close_chat(
         bot: Bot,
         session: AsyncSession,

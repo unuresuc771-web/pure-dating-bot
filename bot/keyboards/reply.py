@@ -13,8 +13,8 @@ def get_main_keyboard(has_lock: bool = False) -> ReplyKeyboardMarkup:
 
 def get_in_chat_reply_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
-        [KeyboardButton(text="🚪 В меню"), KeyboardButton(text="💬 Чаты")],
-        [KeyboardButton(text="🔥 Завершить чат")]
+        [KeyboardButton(text="💬 Все диалоги"), KeyboardButton(text="🔥 Сжечь чат")],
+        [KeyboardButton(text="🚪 В главное меню")]
     ]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
