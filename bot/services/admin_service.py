@@ -47,11 +47,11 @@ class AdminService:
 
     @staticmethod
     async def get_virtual_match_rate(session: AsyncSession) -> float:
-        val = await AdminService.get_setting(session, "virtual_match_rate", "0.15")
+        val = await AdminService.get_setting(session, "virtual_match_rate", "0.20")
         try:
             return float(val)
         except ValueError:
-            return 0.15
+            return 0.20
 
     @staticmethod
     async def set_virtual_match_rate(session: AsyncSession, rate: float):

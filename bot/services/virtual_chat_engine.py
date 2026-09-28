@@ -429,10 +429,41 @@ class VirtualChatEngine:
         return pool[idx]
 
     @staticmethod
-    async def should_match_back(session: AsyncSession) -> bool:
-        """Проверяет шанс отклика (по умолчанию 15% или из настроек)."""
-        rate = await AdminService.get_virtual_match_rate(session)
-        return random.random() < rate
+    async def should_match_back(session: AsyncSession, user_id: Optional[int] = None) -> bool:
+        """
+        Проверяет шанс отклика виртуала:
+        - Базовая вероятность: 20% (0.20) или из настроек админки
+        - Если лайков у пользователя мало, шанс адаптивно увеличивается (до 80%), чтобы вовлечь новичка
+        - Каждый 5-й лайк (likes_count % 5 == 0) — гарантированный взаимный отклик (100%)
+        """
+        base_rate = await AdminService.get_virtual_match_rate(session)
+        if user_id is None:
+            return random.random() < base_rate
+
+        from bot.database.models import Reaction
+        stmt = select(func.count(Reaction.id)).where(
+            Reaction.from_user_id == user_id,
+            Reaction.reaction_type == "like"
+        )
+        total_likes = (await session.execute(stmt)).scalar() or 0
+
+        # Адаптивное увеличение шанса для новичков ("Если лайков меньше, то процент может увеличиваться"):
+        if total_likes <= 1:
+            effective_rate = 0.80  # 1-й лайк: 80% шанс отклика
+        elif total_likes == 2:
+            effective_rate = 0.60  # 2-й лайк: 60%
+        elif total_likes == 3:
+            effective_rate = 0.40  # 3-й лайк: 40%
+        elif total_likes == 4:
+            effective_rate = 0.30  # 4-й лайк: 30%
+        else:
+            # "Каждый пятый лайк пускай отвечает и ведёт диалог"
+            if total_likes % 5 == 0:
+                effective_rate = 1.0
+            else:
+                effective_rate = base_rate
+
+        return random.random() < effective_rate
 
     @staticmethod
     async def count_virtual_messages_in_session(session: AsyncSession, session_id: int, virtual_user_id: int) -> int:

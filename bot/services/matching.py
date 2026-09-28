@@ -115,6 +115,39 @@ class MatchingService:
         if candidate:
             return candidate, None
 
+        # 4. Если все анкеты исчерпаны, мягко рециркулируем виртуальные профили без активного матча
+        active_matches_1 = select(Match.user2_id).where(Match.user1_id == viewer.id)
+        active_matches_2 = select(Match.user1_id).where(Match.user2_id == viewer.id)
+        matched_subquery = active_matches_1.union(active_matches_2).scalar_subquery()
+
+        recycle_conditions = [
+            User.id != viewer.id,
+            User.is_active.is_(True),
+            User.is_banned.is_(False),
+            User.is_fake.is_(True),
+            User.id.not_in(matched_subquery)
+        ]
+        if viewer.target_gender in ("male", "female", "couple"):
+            recycle_conditions.append(User.gender == viewer.target_gender)
+
+        recycle_conditions.append(
+            or_(
+                User.target_gender == viewer.gender,
+                User.target_gender == "all"
+            )
+        )
+
+        recycle_query = (
+            select(User)
+            .where(and_(*recycle_conditions))
+            .order_by(func.random())
+            .limit(1)
+        )
+        recycle_res = await session.execute(recycle_query)
+        candidate = recycle_res.scalar_one_or_none()
+        if candidate:
+            return candidate, None
+
         return None
 
     @staticmethod
@@ -187,12 +220,12 @@ class MatchingService:
             back_res = await session.execute(back_stmt)
             has_back_like = back_res.scalar_one_or_none() is not None
 
-            # 15% шанс взаимного отклика от виртуалов:
+            # 20% базовый шанс взаимного отклика от виртуалов (с адаптивным увеличением для новичков):
             # Если бот передан (живой пользователь в Telegram) — создаем реалистичную задержку (25–70 сек)!
             # Если бот не передан (тесты/скрипты) — делаем синхронно.
             if not has_back_like and target_user.is_fake and not from_user.is_fake:
                 from bot.services.virtual_chat_engine import VirtualChatEngine
-                if await VirtualChatEngine.should_match_back(session):
+                if await VirtualChatEngine.should_match_back(session, user_id=from_user.id):
                     if bot is not None:
                         VirtualChatEngine.schedule_delayed_match(
                             bot=bot,

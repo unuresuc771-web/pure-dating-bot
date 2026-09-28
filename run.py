@@ -49,6 +49,26 @@ async def main():
     await init_db()
     logger.info("Database initialized successfully.")
 
+    # Автоматическая проверка и посев виртуальных анкет (если их меньше 100)
+    try:
+        from bot.database.db import async_session_maker
+        from bot.services.seed_service import SeedService
+        from bot.database.models import User
+        from sqlalchemy import select, func
+
+        async with async_session_maker() as session:
+            fake_count = (await session.execute(
+                select(func.count(User.id)).where(User.is_fake.is_(True))
+            )).scalar() or 0
+            if fake_count < 100:
+                logger.info(f"Обнаружено всего {fake_count} ботов в базе. Запускаем автоматический посев 300 интимных анкет...")
+                counts = await SeedService.seed_fake_users(session, count_per_type=100)
+                logger.info(f"Успешно создано {counts} анкет.")
+            else:
+                logger.info(f"В базе активно {fake_count} виртуальных анкет.")
+    except Exception as e:
+        logger.error(f"Failed to check or seed fake users: {e}", exc_info=True)
+
     # Инициализация бота и диспетчера
     bot = Bot(
         token=settings.BOT_TOKEN,

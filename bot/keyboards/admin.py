@@ -35,7 +35,7 @@ def get_admin_back_keyboard() -> InlineKeyboardMarkup:
         ]
     )
 
-def get_bots_management_keyboard(current_rate: float = 0.15) -> InlineKeyboardMarkup:
+def get_bots_management_keyboard(current_rate: float = 0.20) -> InlineKeyboardMarkup:
     rate_percent = int(round(current_rate * 100))
     return InlineKeyboardMarkup(
         inline_keyboard=[
@@ -48,7 +48,7 @@ def get_bots_management_keyboard(current_rate: float = 0.15) -> InlineKeyboardMa
             ],
             [
                 InlineKeyboardButton(text="10%", callback_data="adm_rate:0.10"),
-                InlineKeyboardButton(text="15% (норма)", callback_data="adm_rate:0.15"),
+                InlineKeyboardButton(text="20% (норма)", callback_data="adm_rate:0.20"),
                 InlineKeyboardButton(text="30%", callback_data="adm_rate:0.30"),
                 InlineKeyboardButton(text="100% (тест)", callback_data="adm_rate:1.00"),
             ],

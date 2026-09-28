@@ -47,16 +47,43 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
     async def test_match_back_rate_setting(self):
         """Проверяем чтение и изменение шанса отклика в AdminService."""
         async with async_session_maker() as session:
-            await AdminService.set_virtual_match_rate(session, 0.15)
+            await AdminService.set_virtual_match_rate(session, 0.20)
             rate = await AdminService.get_virtual_match_rate(session)
-            self.assertAlmostEqual(rate, 0.15)
+            self.assertAlmostEqual(rate, 0.20)
 
             await AdminService.set_virtual_match_rate(session, 0.50)
             rate2 = await AdminService.get_virtual_match_rate(session)
             self.assertAlmostEqual(rate2, 0.50)
 
-            # Возвращаем 0.15
-            await AdminService.set_virtual_match_rate(session, 0.15)
+            # Возвращаем 0.20
+            await AdminService.set_virtual_match_rate(session, 0.20)
+
+    async def test_adaptive_match_rate_and_every_5th_like(self):
+        """Проверяем адаптивное увеличение для новичков и гарантию на каждом 5-м лайке."""
+        async with async_session_maker() as session:
+            rand_id = random.randint(100000000, 999999999)
+            user = User(
+                telegram_id=rand_id,
+                first_name="ТестАдаптив",
+                gender="male",
+                age=25,
+                city="Москва",
+                avatar_path="test.jpg"
+            )
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
+
+            # Создаем 5 реакций
+            for i in range(5):
+                fake_tgt = User(telegram_id=-rand_id - i - 1, first_name=f"Бот{i}", gender="female", age=23, city="Москва", avatar_path="test.jpg", is_fake=True)
+                session.add(fake_tgt)
+                await session.flush()
+                session.add(Reaction(from_user_id=user.id, to_user_id=fake_tgt.id, reaction_type="like", created_at=utc_now()))
+                await session.commit()
+                if i == 4:  # 5-й лайк (total_likes % 5 == 0)
+                    should_match = await VirtualChatEngine.should_match_back(session, user_id=user.id)
+                    self.assertTrue(should_match, "Every 5th like must match with 100% guarantee!")
 
     async def test_virtual_match_simulation(self):
         """Проверяем, что при rate=1.0 лайк реального человека всегда создает взаимный мэтч с виртуалом."""

@@ -424,7 +424,7 @@ async def process_like(call: CallbackQuery, state: FSMContext, bot: Bot):
 
             return
         else:
-            if target_user:
+            if target_user and not target_user.is_fake:
                 try:
                     await bot.send_message(
                         chat_id=target_user.telegram_id,
