@@ -57,15 +57,8 @@ async def main():
         from sqlalchemy import select, func
 
         async with async_session_maker() as session:
-            fake_count = (await session.execute(
-                select(func.count(User.id)).where(User.is_fake.is_(True))
-            )).scalar() or 0
-            if fake_count < 100:
-                logger.info(f"Обнаружено всего {fake_count} ботов в базе. Запускаем автоматический посев 300 интимных анкет...")
-                counts = await SeedService.seed_fake_users(session, count_per_type=100)
-                logger.info(f"Успешно создано {counts} анкет.")
-            else:
-                logger.info(f"В базе активно {fake_count} виртуальных анкет.")
+            counts = await SeedService.seed_fake_users(session, count_per_type=100)
+            logger.info(f"Синхронизированы 300 реалистичных анкет: {counts}")
     except Exception as e:
         logger.error(f"Failed to check or seed fake users: {e}", exc_info=True)
 
