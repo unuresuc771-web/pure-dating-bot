@@ -17,6 +17,6 @@ COPY bot/ ./bot/
 COPY assets/ ./assets/
 COPY run.py .
 COPY bot_dating.db .
-COPY .env .
+COPY .env.example .env
 
 CMD ["python", "run.py"]
