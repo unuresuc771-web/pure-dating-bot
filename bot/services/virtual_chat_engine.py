@@ -586,3 +586,102 @@ class VirtualChatEngine:
 
         except Exception as e:
             logger.error(f"Error in process_virtual_reply for session {session_id}: {e}", exc_info=True)
+
+    @staticmethod
+    def schedule_delayed_match(
+        bot: Bot,
+        real_user_id: int,
+        fake_user_id: int,
+        min_delay: int = 25,
+        max_delay: int = 70
+    ):
+        """
+        Запускает отложенный взаимный отклик от виртуала через реалистичную паузу.
+        Человек не отвечает сиюсекундно — создаётся полное ощущение,
+        что живой собеседник увидел уведомление о лайке, открыл профиль и ответил взаимностью.
+        """
+        asyncio.create_task(
+            VirtualChatEngine._execute_delayed_match(
+                bot=bot,
+                real_user_id=real_user_id,
+                fake_user_id=fake_user_id,
+                min_delay=min_delay,
+                max_delay=max_delay
+            )
+        )
+
+    @staticmethod
+    async def _execute_delayed_match(
+        bot: Bot,
+        real_user_id: int,
+        fake_user_id: int,
+        min_delay: int = 25,
+        max_delay: int = 70
+    ):
+        delay = random.randint(min_delay, max_delay)
+        logger.info(f"Scheduled delayed virtual match: real_user={real_user_id}, fake_user={fake_user_id} in {delay}s")
+        await asyncio.sleep(delay)
+
+        from bot.database.db import async_session_maker
+        from bot.keyboards.inline import get_match_keyboard
+        from bot.services.avatar_cache import AvatarCacheService
+        from bot.database.models import Reaction, Match
+
+        async with async_session_maker() as session:
+            real_user = await session.get(User, real_user_id)
+            fake_user = await session.get(User, fake_user_id)
+            if not real_user or not fake_user or not real_user.is_active or real_user.is_banned:
+                return
+
+            # Проверяем, нет ли уже матча
+            u1, u2 = min(real_user_id, fake_user_id), max(real_user_id, fake_user_id)
+            m_check = await session.execute(
+                select(Match).where(Match.user1_id == u1, Match.user2_id == u2)
+            )
+            if m_check.scalar_one_or_none():
+                return
+
+            # Создаем взаимный лайк от виртуала
+            fake_reaction = Reaction(
+                from_user_id=fake_user_id,
+                to_user_id=real_user_id,
+                reaction_type="like",
+                created_at=utc_now()
+            )
+            session.add(fake_reaction)
+            session.add(Match(user1_id=u1, user2_id=u2, created_at=utc_now()))
+            await session.commit()
+
+            # Создаем сессию чата
+            chat_session = await ChatService.create_or_get_session(session, real_user_id, fake_user_id)
+
+            # Отправляем красивое пуш-уведомление с фото собеседника в Telegram
+            try:
+                text = (
+                    f"🎉 <b>Взаимная симпатия с {fake_user.first_name}!</b>\n\n"
+                    f"Собеседник только что оценил вашу анкету в ответ.\n"
+                    "Начните анонимный диалог прямо сейчас:"
+                )
+                await AvatarCacheService.send_avatar_photo(
+                    bot=bot,
+                    chat_id=real_user.telegram_id,
+                    avatar_path=fake_user.avatar_path,
+                    is_custom_photo=fake_user.is_custom_photo,
+                    caption=text,
+                    reply_markup=get_match_keyboard(chat_session.id)
+                )
+            except Exception as e:
+                logger.error(f"Failed to send delayed match alert: {e}")
+                try:
+                    await bot.send_message(
+                        chat_id=real_user.telegram_id,
+                        text=(
+                            f"🎉 <b>Взаимная симпатия с {fake_user.first_name}!</b>\n\n"
+                            f"Собеседник только что оценил вашу анкету в ответ.\n"
+                            "Начните анонимный диалог прямо сейчас:"
+                        ),
+                        reply_markup=get_match_keyboard(chat_session.id),
+                        parse_mode="HTML"
+                    )
+                except Exception:
+                    pass

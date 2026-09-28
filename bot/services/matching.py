@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Any
 from sqlalchemy import select, and_, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from bot.database.models import User, Reaction, Match, utc_now
@@ -149,7 +149,8 @@ class MatchingService:
         from_user: User,
         target_user_id: int,
         reaction_type: str,
-        message: Optional[str] = None
+        message: Optional[str] = None,
+        bot: Optional[Any] = None
     ) -> Tuple[bool, Optional[User]]:
         target_user = await session.get(User, target_user_id)
         if not target_user:
@@ -186,18 +187,31 @@ class MatchingService:
             back_res = await session.execute(back_stmt)
             has_back_like = back_res.scalar_one_or_none() is not None
 
-            # 15% шанс взаимного отклика от виртуальных пользователей для реальных людей
+            # 15% шанс взаимного отклика от виртуалов:
+            # Если бот передан (живой пользователь в Telegram) — создаем реалистичную задержку (25–70 сек)!
+            # Если бот не передан (тесты/скрипты) — делаем синхронно.
             if not has_back_like and target_user.is_fake and not from_user.is_fake:
                 from bot.services.virtual_chat_engine import VirtualChatEngine
                 if await VirtualChatEngine.should_match_back(session):
-                    fake_reaction = Reaction(
-                        from_user_id=target_user_id,
-                        to_user_id=from_user.id,
-                        reaction_type="like",
-                        created_at=utc_now()
-                    )
-                    session.add(fake_reaction)
-                    has_back_like = True
+                    if bot is not None:
+                        VirtualChatEngine.schedule_delayed_match(
+                            bot=bot,
+                            real_user_id=from_user.id,
+                            fake_user_id=target_user.id,
+                            min_delay=25,
+                            max_delay=70
+                        )
+                        # Ответ придет через 25-70 сек, сейчас пользователь листает дальше
+                        has_back_like = False
+                    else:
+                        fake_reaction = Reaction(
+                            from_user_id=target_user_id,
+                            to_user_id=from_user.id,
+                            reaction_type="like",
+                            created_at=utc_now()
+                        )
+                        session.add(fake_reaction)
+                        has_back_like = True
 
             if has_back_like:
                 is_match = True

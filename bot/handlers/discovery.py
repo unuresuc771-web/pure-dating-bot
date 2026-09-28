@@ -395,7 +395,8 @@ async def process_like(call: CallbackQuery, state: FSMContext, bot: Bot):
             session=session,
             from_user=viewer,
             target_user_id=target_user_id,
-            reaction_type="like"
+            reaction_type="like",
+            bot=bot
         )
 
         if is_match and target_user:
@@ -506,7 +507,8 @@ async def process_msg_send(message: Message, state: FSMContext, bot: Bot):
             from_user=viewer,
             target_user_id=target_user_id,
             reaction_type="like",
-            message=compliment
+            message=compliment,
+            bot=bot
         )
 
         await message.answer("💌 Сообщение и лайк отправлены!", reply_markup=get_main_keyboard())

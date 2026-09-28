@@ -1,6 +1,8 @@
 import asyncio
 import os
+import random
 import unittest
+from sqlalchemy import select
 from bot.database.db import async_session_maker, init_db
 from bot.database.models import User, ChatSession, ChatMessage, Reaction, Match, utc_now
 from bot.services.user_service import UserService
@@ -59,9 +61,10 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
     async def test_virtual_match_simulation(self):
         """Проверяем, что при rate=1.0 лайк реального человека всегда создает взаимный мэтч с виртуалом."""
         async with async_session_maker() as session:
-            # Создаем тестового реального пользователя
+            # Создаем тестового реального пользователя с уникальным telegram_id
+            rand_id = random.randint(100000000, 999999999)
             real_u = User(
-                telegram_id=9998887771,
+                telegram_id=rand_id,
                 first_name="ТестРеал",
                 gender="male",
                 age=25,
@@ -70,7 +73,7 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
                 is_fake=False
             )
             fake_u = User(
-                telegram_id=-9998887772,
+                telegram_id=-rand_id,
                 first_name="ТестВиртуал",
                 gender="female",
                 age=23,
@@ -125,6 +128,53 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
             any(w in stage_10_msg for w in ["сгор", "сгорит", "исчез", "время", "pure", "таймер", "стерт", "бабах"]),
             f"Stage 10 should announce chat burning: {stage_10_msg}"
         )
+
+    async def test_delayed_virtual_match(self):
+        """Проверяем отложенное создание взаимного мэтча и сессии диалога."""
+        async with async_session_maker() as session:
+            rand_id2 = random.randint(100000000, 999999999)
+            real_u = User(
+                telegram_id=rand_id2,
+                first_name="ТестРеал2",
+                gender="male",
+                age=27,
+                city="Москва",
+                avatar_path="test.jpg",
+                is_fake=False
+            )
+            fake_u = User(
+                telegram_id=-rand_id2,
+                first_name="ТестВиртуал2",
+                gender="female",
+                age=24,
+                city="Москва",
+                avatar_path="test.jpg",
+                is_fake=True
+            )
+            session.add_all([real_u, fake_u])
+            await session.commit()
+            await session.refresh(real_u)
+            await session.refresh(fake_u)
+
+            from unittest.mock import AsyncMock
+            mock_bot = AsyncMock()
+
+            # Вызываем с задержкой 0 секунд
+            await VirtualChatEngine._execute_delayed_match(
+                bot=mock_bot,
+                real_user_id=real_u.id,
+                fake_user_id=fake_u.id,
+                min_delay=0,
+                max_delay=0
+            )
+
+            # Проверяем, что в БД появились Reaction, Match и ChatSession
+            u1, u2 = min(real_u.id, fake_u.id), max(real_u.id, fake_u.id)
+            match_res = await session.execute(select(Match).where(Match.user1_id == u1, Match.user2_id == u2))
+            self.assertIsNotNone(match_res.scalar_one_or_none(), "Match must be created!")
+
+            chat_res = await session.execute(select(ChatSession).where(ChatSession.user_a_id == u1, ChatSession.user_b_id == u2))
+            self.assertIsNotNone(chat_res.scalar_one_or_none(), "ChatSession must be created!")
 
 if __name__ == "__main__":
     unittest.main()
