@@ -68,7 +68,7 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
                 gender="male",
                 age=25,
                 city="Москва",
-                avatar_path="test.jpg"
+                avatar_path="assets/avatars/male/male_01.jpg"
             )
             session.add(user)
             await session.commit()
@@ -76,7 +76,7 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
 
             # Создаем 5 реакций
             for i in range(5):
-                fake_tgt = User(telegram_id=-rand_id - i - 1, first_name=f"Бот{i}", gender="female", age=23, city="Москва", avatar_path="test.jpg", is_fake=True)
+                fake_tgt = User(telegram_id=-rand_id - i - 1, first_name=f"Бот{i}", gender="female", age=23, city="Москва", avatar_path="assets/avatars/female/female_01.jpg", is_fake=True)
                 session.add(fake_tgt)
                 await session.flush()
                 session.add(Reaction(from_user_id=user.id, to_user_id=fake_tgt.id, reaction_type="like", created_at=utc_now()))
@@ -96,7 +96,7 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
                 gender="male",
                 age=25,
                 city="Москва",
-                avatar_path="test.jpg",
+                avatar_path="assets/avatars/male/male_01.jpg",
                 is_fake=False
             )
             fake_u = User(
@@ -105,7 +105,7 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
                 gender="female",
                 age=23,
                 city="Москва",
-                avatar_path="test.jpg",
+                avatar_path="assets/avatars/male/male_01.jpg",
                 is_fake=True
             )
             session.add_all([real_u, fake_u])
@@ -166,7 +166,7 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
                 gender="male",
                 age=27,
                 city="Москва",
-                avatar_path="test.jpg",
+                avatar_path="assets/avatars/male/male_01.jpg",
                 is_fake=False
             )
             fake_u = User(
@@ -175,7 +175,7 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
                 gender="female",
                 age=24,
                 city="Москва",
-                avatar_path="test.jpg",
+                avatar_path="assets/avatars/male/male_01.jpg",
                 is_fake=True
             )
             session.add_all([real_u, fake_u])
@@ -202,6 +202,15 @@ class TestVirtualDialog(unittest.IsolatedAsyncioTestCase):
 
             chat_res = await session.execute(select(ChatSession).where(ChatSession.user_a_id == u1, ChatSession.user_b_id == u2))
             self.assertIsNotNone(chat_res.scalar_one_or_none(), "ChatSession must be created!")
+
+    async def asyncTearDown(self):
+        async with async_session_maker() as session:
+            from sqlalchemy import delete
+            await session.execute(delete(Reaction).where(Reaction.from_user_id < 0))
+            await session.execute(delete(Match).where(Match.user1_id < 0))
+            await session.execute(delete(User).where(User.first_name.like("Тест%")))
+            await session.execute(delete(User).where(User.telegram_id < 0))
+            await session.commit()
 
 if __name__ == "__main__":
     unittest.main()

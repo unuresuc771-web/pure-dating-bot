@@ -53,6 +53,28 @@ MALE_PERSONAS: List[Persona] = [
         colors=("#39FF14", "#FF007F")
     ),
     Persona(
+        id="m_04",
+        num=4,
+        gender="male",
+        name="Чертовски Хорош",
+        en_name="Damn Handsome",
+        avatar_path=os.path.join(BASE_DIR, "assets", "avatars", "male", "male_04.jpg"),
+        pattern="Шевроны и динамичные зигзаги 70-х",
+        palette_name="Кибер-Бирюза & Коралловый Рубин",
+        colors=("#00F0FF", "#FF2A6D")
+    ),
+    Persona(
+        id="m_05",
+        num=5,
+        gender="male",
+        name="Кибер Дьявол",
+        en_name="Cyber Devil",
+        avatar_path=os.path.join(BASE_DIR, "assets", "avatars", "male", "male_05.jpg"),
+        pattern="Оптический лабиринт и микросхемы",
+        palette_name="Электрический Циан & Неоновый Мандарин",
+        colors=("#05D9E8", "#FF6C00")
+    ),
+    Persona(
         id="m_06",
         num=6,
         gender="male",

@@ -521,8 +521,8 @@ class VirtualChatEngine:
         4. Если это 10-е сообщение — ожидает 6 секунд и полностью сжигает чат!
         """
         try:
-            # 1. Задержка чтения сообщения (1.5 - 3.5 сек)
-            thinking_delay = random.uniform(1.5, 3.5)
+            # 1. Реалистичная задержка чтения сообщения (4.0 - 9.0 сек)
+            thinking_delay = random.uniform(4.0, 9.0)
             await asyncio.sleep(thinking_delay)
 
             # 2. Вычисляем текущую стадию диалога

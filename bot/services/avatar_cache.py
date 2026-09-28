@@ -34,10 +34,14 @@ def resolve_existing_image(path: str) -> Optional[str]:
     # 3. В текущей рабочей директории
     if os.path.exists(rel_key) and os.path.isfile(rel_key):
         return os.path.abspath(rel_key)
-    # 4. Fallback на логотип / заглушку
-    fallback = os.path.join(BASE_DIR, "assets", "logo.jpg")
-    if os.path.exists(fallback):
-        return fallback
+    # 4. Fallback на первый существующий аватар соответствующего пола (НИКОГДА не логотип чата!)
+    for gender in ["male", "female", "couple"]:
+        if gender in rel_key:
+            gender_dir = os.path.join(BASE_DIR, "assets", "avatars", gender)
+            if os.path.exists(gender_dir):
+                files = [os.path.join(gender_dir, f) for f in os.listdir(gender_dir) if f.endswith(".jpg")]
+                if files:
+                    return sorted(files)[0]
     return None
 
 class AvatarCacheService:
@@ -52,7 +56,7 @@ class AvatarCacheService:
             try:
                 with open(CACHE_FILE_PATH, "r", encoding="utf-8") as f:
                     raw = json.load(f)
-                    cls._cache = {to_normalized_key(k): v for k, v in raw.items()}
+                    cls._cache = {to_normalized_key(k): v for k, v in raw.items() if isinstance(v, str)}
             except Exception as e:
                 logger.warning(f"Failed to load avatar cache from {CACHE_FILE_PATH}: {e}")
                 cls._cache = {}
@@ -62,8 +66,9 @@ class AvatarCacheService:
     def _save(cls):
         try:
             os.makedirs(os.path.dirname(CACHE_FILE_PATH), exist_ok=True)
+            clean_cache = {str(k): str(v) for k, v in cls._cache.items() if isinstance(v, str)}
             with open(CACHE_FILE_PATH, "w", encoding="utf-8") as f:
-                json.dump(cls._cache, f, ensure_ascii=False, indent=2)
+                json.dump(clean_cache, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.warning(f"Failed to save avatar cache to {CACHE_FILE_PATH}: {e}")
 
