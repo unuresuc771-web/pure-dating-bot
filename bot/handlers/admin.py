@@ -214,16 +214,39 @@ async def cb_admin_bots_menu(call: CallbackQuery):
     await call.answer()
     async with async_session_maker() as session:
         s = await AdminService.get_analytics_summary(session)
+        rate = await AdminService.get_virtual_match_rate(session)
+        rate_percent = int(round(rate * 100))
         text = (
             "🤖 <b>Управление виртуальными анкетами:</b>\n\n"
             f"В базе сейчас: <b>{s['fake_users']} виртуальных анкет</b>\n"
             f"• 👨 Мужчин: {s['fake_male']}\n"
             f"• 👩 Женщин: {s['fake_female']}\n"
             f"• 👥 Пар: {s['fake_couple']}\n\n"
-            "Все анкеты имеют реалистичные города, возрасты, уникальные тексты «О себе» и картинки из каталога.\n"
-            "При поиске реальные люди всегда показываются в первую очередь."
+            f"⚡ <b>Шанс взаимного отклика:</b> <b>{rate_percent}%</b>\n"
+            "<i>(Виртуалы отвечают взаимным лайком, поддерживают живой диалог на 10 сообщений с интригой, после чего сжигают чат по правилам Pure)</i>\n\n"
+            "Выберите процент отклика:"
         )
-        await call.message.edit_text(text, reply_markup=get_bots_management_keyboard(), parse_mode="HTML")
+        await call.message.edit_text(text, reply_markup=get_bots_management_keyboard(rate), parse_mode="HTML")
+
+@router.callback_query(F.data.startswith("adm_rate:"))
+async def cb_admin_set_rate(call: CallbackQuery):
+    rate_val = float(call.data.split(":")[1])
+    async with async_session_maker() as session:
+        await AdminService.set_virtual_match_rate(session, rate_val)
+        rate_percent = int(round(rate_val * 100))
+        await call.answer(f"Шанс отклика изменен на {rate_percent}%!", show_alert=True)
+        s = await AdminService.get_analytics_summary(session)
+        text = (
+            "🤖 <b>Управление виртуальными анкетами:</b>\n\n"
+            f"В базе сейчас: <b>{s['fake_users']} виртуальных анкет</b>\n"
+            f"• 👨 Мужчин: {s['fake_male']}\n"
+            f"• 👩 Женщин: {s['fake_female']}\n"
+            f"• 👥 Пар: {s['fake_couple']}\n\n"
+            f"⚡ <b>Шанс взаимного отклика:</b> <b>{rate_percent}%</b>\n"
+            "<i>(Виртуалы отвечают взаимным лайком, поддерживают живой диалог на 10 сообщений с интригой, после чего сжигают чат по правилам Pure)</i>\n\n"
+            "Выберите процент отклика:"
+        )
+        await call.message.edit_text(text, reply_markup=get_bots_management_keyboard(rate_val), parse_mode="HTML")
 
 @router.callback_query(F.data == "adm_bots:seed")
 async def cb_admin_bots_seed(call: CallbackQuery):

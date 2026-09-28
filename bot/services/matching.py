@@ -184,7 +184,22 @@ class MatchingService:
                 Reaction.reaction_type == "like"
             )
             back_res = await session.execute(back_stmt)
-            if back_res.scalar_one_or_none():
+            has_back_like = back_res.scalar_one_or_none() is not None
+
+            # 15% шанс взаимного отклика от виртуальных пользователей для реальных людей
+            if not has_back_like and target_user.is_fake and not from_user.is_fake:
+                from bot.services.virtual_chat_engine import VirtualChatEngine
+                if await VirtualChatEngine.should_match_back(session):
+                    fake_reaction = Reaction(
+                        from_user_id=target_user_id,
+                        to_user_id=from_user.id,
+                        reaction_type="like",
+                        created_at=utc_now()
+                    )
+                    session.add(fake_reaction)
+                    has_back_like = True
+
+            if has_back_like:
                 is_match = True
                 u1 = min(from_user.id, target_user_id)
                 u2 = max(from_user.id, target_user_id)

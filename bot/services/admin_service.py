@@ -46,6 +46,18 @@ class AdminService:
         return await AdminService.get_setting(session, "access_password", AdminService.DEFAULT_ACCESS_PASSWORD)
 
     @staticmethod
+    async def get_virtual_match_rate(session: AsyncSession) -> float:
+        val = await AdminService.get_setting(session, "virtual_match_rate", "0.15")
+        try:
+            return float(val)
+        except ValueError:
+            return 0.15
+
+    @staticmethod
+    async def set_virtual_match_rate(session: AsyncSession, rate: float):
+        await AdminService.set_setting(session, "virtual_match_rate", str(rate))
+
+    @staticmethod
     async def is_user_authorized_for_gate(session: AsyncSession, telegram_id: int) -> bool:
         from bot.database.models import AuthorizedAccess
         stmt = select(AuthorizedAccess).where(AuthorizedAccess.telegram_id == telegram_id)

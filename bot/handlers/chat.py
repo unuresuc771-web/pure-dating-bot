@@ -102,6 +102,21 @@ async def cb_open_chat(call: CallbackQuery, state: FSMContext):
             parse_mode="HTML"
         )
 
+        # Если собеседник виртуальный и сообщений еще нет - отправляем приветствие
+        if partner.is_fake:
+            recent_msgs = await ChatService.get_recent_messages(session, chat.id, limit=1)
+            if not recent_msgs:
+                from bot.services.virtual_chat_engine import VirtualChatEngine
+                asyncio.create_task(
+                    VirtualChatEngine.process_virtual_reply(
+                        bot=call.bot,
+                        session_id=chat.id,
+                        real_user=user,
+                        fake_user=partner,
+                        user_message_text="[Начало диалога]"
+                    )
+                )
+
 @router.message(F.text.in_({"🚪 В меню", "🚪 Выйти в меню (свернуть)", "🚪 Выйти в меню", "🚪 Выйти"}))
 async def action_exit_chat(message: Message, state: FSMContext):
     await state.clear()
@@ -363,6 +378,36 @@ async def handle_in_chat_relay(message: Message, bot: Bot, state: FSMContext):
 
         partner = await UserService.get_by_id(session, partner_id)
         if not partner:
+            return
+
+        # Специальная обработка для виртуальных собеседников (симуляция живого диалога)
+        if partner.is_fake:
+            msg_text = message.text or (message.caption if (message.photo or message.video) else "[Медиа]")
+            media_type = "photo" if message.photo else ("voice" if message.voice else ("video" if message.video else "text"))
+
+            if message.photo:
+                await message.reply("🔥 <i>Собеседник просматривает ваше фото...</i>", parse_mode="HTML")
+
+            await ChatService.record_relayed_message(
+                session=session,
+                session_id=chat.id,
+                sender_id=user.id,
+                sender_message_id=message.message_id,
+                recipient_message_id=message.message_id,
+                text=msg_text,
+                media_type=media_type
+            )
+
+            from bot.services.virtual_chat_engine import VirtualChatEngine
+            asyncio.create_task(
+                VirtualChatEngine.process_virtual_reply(
+                    bot=bot,
+                    session_id=chat.id,
+                    real_user=user,
+                    fake_user=partner,
+                    user_message_text=msg_text or ""
+                )
+            )
             return
 
         partner_in_chat = (partner.active_chat_id == chat.id)

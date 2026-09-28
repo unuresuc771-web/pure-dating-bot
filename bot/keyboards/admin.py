@@ -35,12 +35,22 @@ def get_admin_back_keyboard() -> InlineKeyboardMarkup:
         ]
     )
 
-def get_bots_management_keyboard() -> InlineKeyboardMarkup:
+def get_bots_management_keyboard(current_rate: float = 0.15) -> InlineKeyboardMarkup:
+    rate_percent = int(round(current_rate * 100))
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(text="➕ Создать 300 анкет", callback_data="adm_bots:seed"),
                 InlineKeyboardButton(text="🗑 Очистить ботов", callback_data="adm_bots:clear")
+            ],
+            [
+                InlineKeyboardButton(text=f"⚡ Текущий отклик на лайки: {rate_percent}%", callback_data="adm_bots:rate_info")
+            ],
+            [
+                InlineKeyboardButton(text="10%", callback_data="adm_rate:0.10"),
+                InlineKeyboardButton(text="15% (норма)", callback_data="adm_rate:0.15"),
+                InlineKeyboardButton(text="30%", callback_data="adm_rate:0.30"),
+                InlineKeyboardButton(text="100% (тест)", callback_data="adm_rate:1.00"),
             ],
             [
                 InlineKeyboardButton(text="🔙 Назад в панель админа", callback_data="adm_view:main")
